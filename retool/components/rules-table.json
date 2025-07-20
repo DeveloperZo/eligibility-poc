@@ -1,0 +1,294 @@
+{
+  \"type\": \"container\",
+  \"id\": \"rulesManagementContainer\",
+  \"configuration\": {
+    \"layout\": \"vertical\",
+    \"backgroundColor\": \"#ffffff\",
+    \"padding\": \"24px\",
+    \"borderRadius\": \"8px\",
+    \"boxShadow\": \"0 1px 3px rgba(0,0,0,0.1)\"
+  },
+  \"children\": [
+    {
+      \"type\": \"container\",
+      \"id\": \"tableHeaderContainer\",
+      \"configuration\": {
+        \"layout\": \"horizontal\",
+        \"justifyContent\": \"space-between\",
+        \"alignItems\": \"center\",
+        \"marginBottom\": \"24px\"
+      },
+      \"children\": [
+        {
+          \"type\": \"text\",
+          \"id\": \"tableTitle\",
+          \"configuration\": {
+            \"text\": \"Manage Eligibility Rules\",
+            \"fontSize\": \"20px\",
+            \"fontWeight\": \"semibold\",
+            \"color\": \"#1f2937\"
+          }
+        },
+        {
+          \"type\": \"container\",
+          \"id\": \"tableActionsContainer\",
+          \"configuration\": {
+            \"layout\": \"horizontal\",
+            \"gap\": \"12px\",
+            \"alignItems\": \"center\"
+          },
+          \"children\": [
+            {
+              \"type\": \"textInput\",
+              \"id\": \"searchInput\",
+              \"configuration\": {
+                \"placeholder\": \"Search rules...\",
+                \"icon\": \"Search\",
+                \"onChange\": \"filterRulesTable()\",
+                \"clearable\": true
+              }
+            },
+            {
+              \"type\": \"select\",
+              \"id\": \"statusFilter\",
+              \"configuration\": {
+                \"placeholder\": \"Filter by status\",
+                \"options\": [
+                  { \"value\": \"all\", \"label\": \"All Status\" },
+                  { \"value\": \"active\", \"label\": \"Active\" },
+                  { \"value\": \"inactive\", \"label\": \"Inactive\" },
+                  { \"value\": \"error\", \"label\": \"Error\" }
+                ],
+                \"value\": \"all\",
+                \"onChange\": \"filterRulesTable()\"
+              }
+            },
+            {
+              \"type\": \"button\",
+              \"id\": \"refreshTableButton\",
+              \"configuration\": {
+                \"text\": \"Refresh\",
+                \"variant\": \"outline\",
+                \"icon\": \"RefreshCw\",
+                \"onClick\": \"listRules.trigger()\",
+                \"loading\": \"{{ listRules.isFetching }}\"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      \"type\": \"table\",
+      \"id\": \"rulesTable\",
+      \"configuration\": {
+        \"data\": \"{{ getFilteredRules() }}\",
+        \"columns\": [
+          {
+            \"id\": \"name\",
+            \"header\": \"Rule Name\",
+            \"accessor\": \"name\",
+            \"sortable\": true,
+            \"cell\": {
+              \"type\": \"container\",
+              \"layout\": \"vertical\",
+              \"children\": [
+                {
+                  \"type\": \"text\",
+                  \"configuration\": {
+                    \"text\": \"{{ item.name }}\",
+                    \"fontWeight\": \"medium\",
+                    \"color\": \"#1f2937\"
+                  }
+                },
+                {
+                  \"type\": \"text\",
+                  \"configuration\": {
+                    \"text\": \"{{ item.description || 'No description provided' }}\",
+                    \"fontSize\": \"12px\",
+                    \"color\": \"#6b7280\"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            \"id\": \"type\",
+            \"header\": \"Type\",
+            \"accessor\": \"type\",
+            \"sortable\": true,
+            \"cell\": {
+              \"type\": \"badge\",
+              \"configuration\": {
+                \"text\": \"{{ formatRuleType(item.type) }}\",
+                \"color\": \"{{ getRuleTypeColor(item.type) }}\",
+                \"variant\": \"outline\"
+              }
+            }
+          },
+          {
+            \"id\": \"status\",
+            \"header\": \"Status\",
+            \"accessor\": \"status\",
+            \"sortable\": true,
+            \"cell\": {
+              \"type\": \"badge\",
+              \"configuration\": {
+                \"text\": \"{{ item.status?.toUpperCase() || 'UNKNOWN' }}\",
+                \"color\": \"{{ getStatusColor(item.status) }}\",
+                \"variant\": \"solid\"
+              }
+            }
+          },
+          {
+            \"id\": \"configuration\",
+            \"header\": \"Configuration\",
+            \"accessor\": \"configuration\",
+            \"cell\": {
+              \"type\": \"text\",
+              \"configuration\": {
+                \"text\": \"{{ getRuleConfigSummary(item) }}\",
+                \"fontSize\": \"14px\",
+                \"color\": \"#374151\"
+              }
+            }
+          },
+          {
+            \"id\": \"createdAt\",
+            \"header\": \"Created\",
+            \"accessor\": \"createdAt\",
+            \"sortable\": true,
+            \"cell\": {
+              \"type\": \"text\",
+              \"configuration\": {
+                \"text\": \"{{ formatDate(item.createdAt) }}\",
+                \"fontSize\": \"14px\",
+                \"color\": \"#6b7280\"
+              }
+            }
+          },
+          {
+            \"id\": \"actions\",
+            \"header\": \"Actions\",
+            \"cell\": {
+              \"type\": \"container\",
+              \"layout\": \"horizontal\",
+              \"gap\": \"8px\",
+              \"children\": [
+                {
+                  \"type\": \"button\",
+                  \"id\": \"testRuleButton\",
+                  \"configuration\": {
+                    \"text\": \"Test\",
+                    \"variant\": \"outline\",
+                    \"size\": \"small\",
+                    \"color\": \"blue\",
+                    \"icon\": \"Play\",
+                    \"onClick\": \"openTestModal(item)\"
+                  }
+                },
+                {
+                  \"type\": \"button\",
+                  \"id\": \"editRuleButton\",
+                  \"configuration\": {
+                    \"text\": \"Edit\",
+                    \"variant\": \"outline\",
+                    \"size\": \"small\",
+                    \"color\": \"gray\",
+                    \"icon\": \"Edit\",
+                    \"onClick\": \"openEditModal(item)\"
+                  }
+                },
+                {
+                  \"type\": \"button\",
+                  \"id\": \"deleteRuleButton\",
+                  \"configuration\": {
+                    \"text\": \"Delete\",
+                    \"variant\": \"outline\",
+                    \"size\": \"small\",
+                    \"color\": \"red\",
+                    \"icon\": \"Trash\",
+                    \"onClick\": \"openDeleteModal(item)\"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        \"pagination\": {
+          \"enabled\": true,
+          \"pageSize\": 10,
+          \"showSizeSelector\": true
+        },
+        \"selection\": {
+          \"mode\": \"single\",
+          \"onSelectionChange\": \"handleRuleSelection()\"
+        },
+        \"sorting\": {
+          \"enabled\": true,
+          \"defaultSort\": [{ \"id\": \"createdAt\", \"desc\": true }]
+        },
+        \"emptyState\": {
+          \"title\": \"No rules found\",
+          \"description\": \"Create your first eligibility rule to get started\",
+          \"action\": {
+            \"text\": \"Create Rule\",
+            \"onClick\": \"mainTabs.setCurrentTab('createRuleTab')\"
+          }
+        }
+      }
+    },
+    {
+      \"type\": \"container\",
+      \"id\": \"bulkActionsContainer\",
+      \"configuration\": {
+        \"layout\": \"horizontal\",
+        \"justifyContent\": \"space-between\",
+        \"alignItems\": \"center\",
+        \"marginTop\": \"16px\",
+        \"hidden\": \"{{ !rulesTable.selectedRows.length }}\"
+      },
+      \"children\": [
+        {
+          \"type\": \"text\",
+          \"id\": \"selectionInfo\",
+          \"configuration\": {
+            \"text\": \"{{ rulesTable.selectedRows.length }} rule(s) selected\",
+            \"fontSize\": \"14px\",
+            \"color\": \"#6b7280\"
+          }
+        },
+        {
+          \"type\": \"container\",
+          \"id\": \"bulkButtonsContainer\",
+          \"configuration\": {
+            \"layout\": \"horizontal\",
+            \"gap\": \"8px\"
+          },
+          \"children\": [
+            {
+              \"type\": \"button\",
+              \"id\": \"bulkTestButton\",
+              \"configuration\": {
+                \"text\": \"Test Selected\",
+                \"variant\": \"outline\",
+                \"color\": \"blue\",
+                \"onClick\": \"bulkTestRules()\"
+              }
+            },
+            {
+              \"type\": \"button\",
+              \"id\": \"bulkDeleteButton\",
+              \"configuration\": {
+                \"text\": \"Delete Selected\",
+                \"variant\": \"outline\",
+                \"color\": \"red\",
+                \"onClick\": \"bulkDeleteRules()\"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

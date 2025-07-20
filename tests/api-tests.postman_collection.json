@@ -1,0 +1,326 @@
+{
+  "info": {
+    "name": "Eligibility Rule Management API - Complete Test Suite",
+    "description": "Comprehensive API test collection for the complete eligibility rule management system workflow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "middleware_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "data_api_url", 
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "test_rule_id",
+      "value": "POSTMAN_TEST_{{$timestamp}}",
+      "type": "string"
+    },
+    {
+      "key": "deployment_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. System Health Checks",
+      "item": [
+        {
+          "name": "Middleware Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{middleware_url}}/health",
+              "host": ["{{middleware_url}}"],
+              "path": ["health"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Middleware is healthy', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "    pm.expect(pm.response.json().status).to.eql('healthy');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Data API Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{data_api_url}}/health",
+              "host": ["{{data_api_url}}"],
+              "path": ["health"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Data API is healthy', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Camunda Connectivity Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{middleware_url}}/api/camunda/health",
+              "host": ["{{middleware_url}}"],
+              "path": ["api", "camunda", "health"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Camunda is accessible', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(pm.response.json().success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. External Data Sources",
+      "item": [
+        {
+          "name": "Get Employees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{data_api_url}}/employees",
+              "host": ["{{data_api_url}}"],
+              "path": ["employees"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Employee data available', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "    pm.expect(response.data).to.be.an('array');",
+                  "    pm.expect(response.data.length).to.be.greaterThan(0);",
+                  "    ",
+                  "    const employee = response.data[0];",
+                  "    pm.expect(employee).to.have.property('id');",
+                  "    pm.expect(employee).to.have.property('name');",
+                  "    pm.expect(employee).to.have.property('age');",
+                  "    pm.expect(employee).to.have.property('groupNumber');",
+                  "    pm.expect(employee).to.have.property('healthPlan');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Health Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{data_api_url}}/health-plans",
+              "host": ["{{data_api_url}}"],
+              "path": ["health-plans"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Health plans data available', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "    pm.expect(response.data).to.be.an('array');",
+                  "    pm.expect(response.data.length).to.be.greaterThan(0);",
+                  "    ",
+                  "    const plan = response.data[0];",
+                  "    pm.expect(plan).to.have.property('id');",
+                  "    pm.expect(plan).to.have.property('name');",
+                  "    pm.expect(plan).to.have.property('type');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Age Rule Workflow",
+      "item": [
+        {
+          "name": "Create Age Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ruleId\": \"{{test_rule_id}}_AGE\",\n  \"ruleName\": \"Postman Test - Age 21 Minimum\",\n  \"ruleType\": \"age\",\n  \"configuration\": {\n    \"ageThreshold\": 21,\n    \"operator\": \">=\"\n  },\n  \"metadata\": {\n    \"description\": \"Postman integration test for age validation\",\n    \"createdBy\": \"postman-test-suite\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{middleware_url}}/api/rules/create",
+              "host": ["{{middleware_url}}"],
+              "path": ["api", "rules", "create"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Age rule created successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "    pm.expect(response.data).to.have.property('ruleId');",
+                  "    pm.expect(response.data).to.have.property('deploymentId');",
+                  "    ",
+                  "    pm.collectionVariables.set('deployment_id', response.data.deploymentId);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Test Age Rule - Eligible Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": \"EMP-004\",\n  \"rules\": [\"{{test_rule_id}}_AGE\"],\n  \"context\": {\n    \"testMode\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{middleware_url}}/api/evaluate",
+              "host": ["{{middleware_url}}"],
+              "path": ["api", "evaluate"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Eligible employee passes age rule', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "    pm.expect(response.data.eligible).to.be.true;",
+                  "    pm.expect(response.data).to.have.property('reasoning');",
+                  "    pm.expect(response.data.executedRules).to.include('{{test_rule_id}}_AGE');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9. Cleanup",
+      "item": [
+        {
+          "name": "Delete Test Rules",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{middleware_url}}/api/rules/{{test_rule_id}}_AGE",
+              "host": ["{{middleware_url}}"],
+              "path": ["api", "rules", "{{test_rule_id}}_AGE"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Test rule deleted successfully', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Generate unique test ID for this run",
+          "if (!pm.collectionVariables.get('test_run_id')) {",
+          "    pm.collectionVariables.set('test_run_id', Date.now());",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "// Global test statistics",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+          "});",
+          "",
+          "pm.test('No server errors', function () {",
+          "    pm.response.to.not.have.status(500);",
+          "});"
+        ]
+      }
+    }
+  ]
+}

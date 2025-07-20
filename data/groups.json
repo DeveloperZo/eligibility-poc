@@ -1,0 +1,119 @@
+[
+  {
+    "groupNumber": "GRP-100",
+    "name": "Standard Employees",
+    "description": "Full-time employees with standard benefits",
+    "department": "General",
+    "benefits": {
+      "healthInsurance": true,
+      "dentalInsurance": true,
+      "visionInsurance": false,
+      "lifeInsurance": true,
+      "retirementPlan": true,
+      "paidTimeOff": 20,
+      "sickDays": 10
+    },
+    "eligibleHealthPlans": ["PLAN-A", "PLAN-B"],
+    "minimumAge": 18,
+    "status": "active",
+    "created": "2023-01-01",
+    "lastUpdated": "2024-01-15"
+  },
+  {
+    "groupNumber": "GRP-200",
+    "name": "Marketing Team",
+    "description": "Marketing department employees",
+    "department": "Marketing",
+    "benefits": {
+      "healthInsurance": true,
+      "dentalInsurance": true,
+      "visionInsurance": true,
+      "lifeInsurance": true,
+      "retirementPlan": true,
+      "paidTimeOff": 25,
+      "sickDays": 12,
+      "professionalDevelopment": true
+    },
+    "eligibleHealthPlans": ["PLAN-A"],
+    "minimumAge": 21,
+    "status": "active",
+    "created": "2023-06-01",
+    "lastUpdated": "2024-03-10"
+  },
+  {
+    "groupNumber": "GRP-300",
+    "name": "Executive Group",
+    "description": "Senior management and executives",
+    "department": "Executive",
+    "benefits": {
+      "healthInsurance": true,
+      "dentalInsurance": true,
+      "visionInsurance": true,
+      "lifeInsurance": true,
+      "retirementPlan": true,
+      "paidTimeOff": 30,
+      "sickDays": 15,
+      "professionalDevelopment": true,
+      "executivePerks": true,
+      "stockOptions": true
+    },
+    "eligibleHealthPlans": ["PLAN-A", "PLAN-C"],
+    "minimumAge": 25,
+    "status": "active",
+    "created": "2023-01-01",
+    "lastUpdated": "2024-01-01"
+  },
+  {
+    "groupNumber": "GRP-400",
+    "name": "Temporary Workers",
+    "description": "Contract and temporary employees",
+    "department": "Contractors",
+    "benefits": {
+      "healthInsurance": true,
+      "dentalInsurance": false,
+      "visionInsurance": false,
+      "lifeInsurance": false,
+      "retirementPlan": false,
+      "paidTimeOff": 0,
+      "sickDays": 5
+    },
+    "eligibleHealthPlans": ["PLAN-B", "PLAN-D"],
+    "minimumAge": 16,
+    "status": "active",
+    "created": "2024-01-01",
+    "lastUpdated": "2024-01-01"
+  },
+  {
+    "groupNumber": "GRP-500",
+    "name": "Remote Workers",
+    "description": "Full-time remote employees",
+    "department": "Remote",
+    "benefits": {
+      "healthInsurance": true,
+      "dentalInsurance": true,
+      "visionInsurance": true,
+      "lifeInsurance": true,
+      "retirementPlan": true,
+      "paidTimeOff": 22,
+      "sickDays": 10,
+      "homeOfficeAllowance": true
+    },
+    "eligibleHealthPlans": ["PLAN-A"],
+    "minimumAge": 18,
+    "status": "active",
+    "created": "2024-03-01",
+    "lastUpdated": "2024-03-01"
+  },
+  {
+    "groupNumber": "INVALID-GRP",
+    "name": "Invalid Group",
+    "description": "This group should not be used for testing invalid scenarios",
+    "department": "Test",
+    "benefits": {},
+    "eligibleHealthPlans": [],
+    "minimumAge": 0,
+    "status": "inactive",
+    "created": "2023-01-01",
+    "lastUpdated": "2023-01-01"
+  }
+]

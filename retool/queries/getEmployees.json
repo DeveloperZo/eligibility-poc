@@ -1,0 +1,27 @@
+{
+  "name": "getEmployees",
+  "type": "restapi",
+  "resourceName": "EligibilityAPI",
+  "configuration": {
+    "method": "GET",
+    "url": "{{ EligibilityAPI.base_url }}/data/employees",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "timeout": 10000,
+    "enableTransformer": true,
+    "transformer": "// Transform employees response\nreturn {\n  data: data.data || [],\n  success: data.success\n};",
+    "triggerConditions": {
+      "onPageLoad": true,
+      "manual": false
+    },
+    "successNotification": {
+      "enabled": false
+    },
+    "errorNotification": {
+      "enabled": true,
+      "title": "Failed to load employees",
+      "description": "{{ self.error?.message || 'Unable to fetch employee data' }}"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "testRule",
+  "type": "restapi",
+  "resourceName": "EligibilityAPI",
+  "configuration": {
+    "method": "POST",
+    "url": "{{ EligibilityAPI.base_url }}/rules/{{ additionalScope?.selectedRule?.id || testRuleSelect.value }}/test",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "employeeId": "{{ employeeSelect.value }}",
+      "useMockData": "{{ dataSourceSelect.value === 'mock' }}"
+    },
+    "timeout": 20000,
+    "enableTransformer": true,
+    "transformer": "// Transform test rule response\nif (data.success) {\n  return {\n    success: true,\n    eligible: data.data.eligible,\n    reasoning: data.data.reasoning,\n    timestamp: data.timestamp,\n    duration: data.data.duration,\n    ruleName: data.data.ruleName,\n    employeeName: data.data.employeeName,\n    details: data.data.details\n  };\n} else {\n  throw new Error(data.error?.message || 'Failed to test rule');\n}",
+    "triggerConditions": {
+      "onPageLoad": false,
+      "manual": true
+    },
+    "successNotification": {
+      "enabled": true,
+      "title": "Test Complete",
+      "description": "Employee is {{ self.data.eligible ? 'eligible' : 'not eligible' }}"
+    },
+    "errorNotification": {
+      "enabled": true,
+      "title": "Test Failed",
+      "description": "{{ self.error?.message || 'Unable to test rule' }}"
+    }
+  }
+}

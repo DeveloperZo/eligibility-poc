@@ -1,0 +1,27 @@
+{
+  "name": "listRules",
+  "type": "restapi",
+  "resourceName": "EligibilityAPI",
+  "configuration": {
+    "method": "GET",
+    "url": "{{ EligibilityAPI.base_url }}/rules",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "timeout": 10000,
+    "enableTransformer": true,
+    "transformer": "// Transform the API response to extract rules data\nreturn {\n  data: data.data || [],\n  success: data.success,\n  timestamp: data.timestamp,\n  total: data.data?.length || 0\n};",
+    "triggerConditions": {
+      "onPageLoad": true,
+      "manual": false
+    },
+    "successNotification": {
+      "enabled": false
+    },
+    "errorNotification": {
+      "enabled": true,
+      "title": "Failed to load rules",
+      "description": "{{ self.error?.message || 'Unable to fetch rules from server' }}"
+    }
+  }
+}

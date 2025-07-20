@@ -1,0 +1,411 @@
+{
+  \"type\": \"container\",
+  \"id\": \"ruleTestingPanel\",
+  \"configuration\": {
+    \"layout\": \"vertical\",
+    \"backgroundColor\": \"#ffffff\",
+    \"padding\": \"24px\",
+    \"borderRadius\": \"8px\",
+    \"boxShadow\": \"0 1px 3px rgba(0,0,0,0.1)\"
+  },
+  \"children\": [
+    {
+      \"type\": \"text\",
+      \"id\": \"testingTitle\",
+      \"configuration\": {
+        \"text\": \"Test Eligibility Rules\",
+        \"fontSize\": \"20px\",
+        \"fontWeight\": \"semibold\",
+        \"color\": \"#1f2937\",
+        \"marginBottom\": \"24px\"
+      }
+    },
+    {
+      \"type\": \"container\",
+      \"id\": \"testSetupContainer\",
+      \"configuration\": {
+        \"layout\": \"horizontal\",
+        \"gap\": \"24px\",
+        \"marginBottom\": \"32px\"
+      },
+      \"children\": [
+        {
+          \"type\": \"container\",
+          \"id\": \"ruleSelectionContainer\",
+          \"configuration\": {
+            \"layout\": \"vertical\",
+            \"flex\": \"1\",
+            \"gap\": \"16px\"
+          },
+          \"children\": [
+            {
+              \"type\": \"text\",
+              \"id\": \"ruleSelectionTitle\",
+              \"configuration\": {
+                \"text\": \"Select Rule to Test\",
+                \"fontSize\": \"16px\",
+                \"fontWeight\": \"medium\",
+                \"color\": \"#374151\"
+              }
+            },
+            {
+              \"type\": \"select\",
+              \"id\": \"testRuleSelect\",
+              \"configuration\": {
+                \"label\": \"Rule\",
+                \"placeholder\": \"Choose a rule to test\",
+                \"data\": \"{{ listRules.data }}\",
+                \"value\": \"{{ item.id }}\",
+                \"label\": \"{{ item.name }} ({{ formatRuleType(item.type) }})\",
+                \"onChange\": \"handleTestRuleSelection()\"
+              }
+            },
+            {
+              \"type\": \"container\",
+              \"id\": \"selectedRuleInfo\",
+              \"configuration\": {
+                \"layout\": \"vertical\",
+                \"padding\": \"12px\",
+                \"backgroundColor\": \"#f3f4f6\",
+                \"borderRadius\": \"6px\",
+                \"hidden\": \"{{ !testRuleSelect.value }}\"
+              },
+              \"children\": [
+                {
+                  \"type\": \"text\",
+                  \"id\": \"selectedRuleName\",
+                  \"configuration\": {
+                    \"text\": \"{{ getSelectedRule()?.name || '' }}\",
+                    \"fontWeight\": \"medium\",
+                    \"color\": \"#1f2937\"
+                  }
+                },
+                {
+                  \"type\": \"text\",
+                  \"id\": \"selectedRuleDescription\",
+                  \"configuration\": {
+                    \"text\": \"{{ getSelectedRule()?.description || 'No description' }}\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#6b7280\"
+                  }
+                },
+                {
+                  \"type\": \"text\",
+                  \"id\": \"selectedRuleConfig\",
+                  \"configuration\": {
+                    \"text\": \"Configuration: {{ getRuleConfigSummary(getSelectedRule()) }}\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#374151\"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          \"type\": \"container\",
+          \"id\": \"employeeSelectionContainer\",
+          \"configuration\": {
+            \"layout\": \"vertical\",
+            \"flex\": \"1\",
+            \"gap\": \"16px\"
+          },
+          \"children\": [
+            {
+              \"type\": \"text\",
+              \"id\": \"employeeSelectionTitle\",
+              \"configuration\": {
+                \"text\": \"Select Employee to Test\",
+                \"fontSize\": \"16px\",
+                \"fontWeight\": \"medium\",
+                \"color\": \"#374151\"
+              }
+            },
+            {
+              \"type\": \"container\",
+              \"id\": \"dataSourceToggle\",
+              \"configuration\": {
+                \"layout\": \"horizontal\",
+                \"gap\": \"12px\",
+                \"alignItems\": \"center\",
+                \"marginBottom\": \"8px\"
+              },
+              \"children\": [
+                {
+                  \"type\": \"text\",
+                  \"id\": \"dataSourceLabel\",
+                  \"configuration\": {
+                    \"text\": \"Data Source:\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#374151\"
+                  }
+                },
+                {
+                  \"type\": \"segmentedControl\",
+                  \"id\": \"dataSourceSelect\",
+                  \"configuration\": {
+                    \"options\": [
+                      { \"value\": \"real\", \"label\": \"Real Data\" },
+                      { \"value\": \"mock\", \"label\": \"Mock Data\" }
+                    ],
+                    \"value\": \"mock\",
+                    \"onChange\": \"handleDataSourceChange()\"
+                  }
+                }
+              ]
+            },
+            {
+              \"type\": \"select\",
+              \"id\": \"employeeSelect\",
+              \"configuration\": {
+                \"label\": \"Employee\",
+                \"placeholder\": \"Choose an employee\",
+                \"data\": \"{{ getEmployeeData() }}\",
+                \"value\": \"{{ item.id }}\",
+                \"label\": \"{{ item.name }} ({{ item.id }}) - Age: {{ item.age }}\",
+                \"searchable\": true,
+                \"onChange\": \"handleEmployeeSelection()\"
+              }
+            },
+            {
+              \"type\": \"container\",
+              \"id\": \"selectedEmployeeInfo\",
+              \"configuration\": {
+                \"layout\": \"vertical\",
+                \"padding\": \"12px\",
+                \"backgroundColor\": \"#f3f4f6\",
+                \"borderRadius\": \"6px\",
+                \"hidden\": \"{{ !employeeSelect.value }}\"
+              },
+              \"children\": [
+                {
+                  \"type\": \"text\",
+                  \"id\": \"selectedEmployeeName\",
+                  \"configuration\": {
+                    \"text\": \"{{ getSelectedEmployee()?.name || '' }}\",
+                    \"fontWeight\": \"medium\",
+                    \"color\": \"#1f2937\"
+                  }
+                },
+                {
+                  \"type\": \"text\",
+                  \"id\": \"selectedEmployeeDetails\",
+                  \"configuration\": {
+                    \"text\": \"ID: {{ getSelectedEmployee()?.id }} | Age: {{ getSelectedEmployee()?.age }} | Group: {{ getSelectedEmployee()?.groupNumber }}\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#6b7280\"
+                  }
+                },
+                {
+                  \"type\": \"text\",
+                  \"id\": \"selectedEmployeeHealthPlan\",
+                  \"configuration\": {
+                    \"text\": \"Health Plan: {{ getSelectedEmployee()?.healthPlan?.name || 'None' }} ({{ getSelectedEmployee()?.healthPlan?.status || 'N/A' }})\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#374151\"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      \"type\": \"container\",
+      \"id\": \"testActionsContainer\",
+      \"configuration\": {
+        \"layout\": \"horizontal\",
+        \"justifyContent\": \"center\",
+        \"gap\": \"16px\",
+        \"marginBottom\": \"32px\"
+      },
+      \"children\": [
+        {
+          \"type\": \"button\",
+          \"id\": \"runTestButton\",
+          \"configuration\": {
+            \"text\": \"Run Eligibility Test\",
+            \"variant\": \"solid\",
+            \"color\": \"blue\",
+            \"size\": \"large\",
+            \"icon\": \"Play\",
+            \"onClick\": \"runEligibilityTest()\",
+            \"disabled\": \"{{ !testRuleSelect.value || !employeeSelect.value || testRule.isFetching }}\",
+            \"loading\": \"{{ testRule.isFetching }}\"
+          }
+        },
+        {
+          \"type\": \"button\",
+          \"id\": \"clearTestButton\",
+          \"configuration\": {
+            \"text\": \"Clear Results\",
+            \"variant\": \"outline\",
+            \"color\": \"gray\",
+            \"onClick\": \"clearTestResults()\"
+          }
+        }
+      ]
+    },
+    {
+      \"type\": \"container\",
+      \"id\": \"testResultsContainer\",
+      \"configuration\": {
+        \"layout\": \"vertical\",
+        \"gap\": \"16px\",
+        \"hidden\": \"{{ !testResults.data }}\"
+      },
+      \"children\": [
+        {
+          \"type\": \"text\",
+          \"id\": \"resultsTitle\",
+          \"configuration\": {
+            \"text\": \"Test Results\",
+            \"fontSize\": \"18px\",
+            \"fontWeight\": \"semibold\",
+            \"color\": \"#1f2937\"
+          }
+        },
+        {
+          \"type\": \"container\",
+          \"id\": \"eligibilityResultContainer\",
+          \"configuration\": {
+            \"layout\": \"horizontal\",
+            \"alignItems\": \"center\",
+            \"gap\": \"12px\",
+            \"padding\": \"16px\",
+            \"borderRadius\": \"8px\",
+            \"backgroundColor\": \"{{ testResults.data?.eligible ? '#dcfce7' : '#fef2f2' }}\",
+            \"border\": \"2px solid {{ testResults.data?.eligible ? '#16a34a' : '#dc2626' }}\"
+          },
+          \"children\": [
+            {
+              \"type\": \"icon\",
+              \"id\": \"eligibilityIcon\",
+              \"configuration\": {
+                \"name\": \"{{ testResults.data?.eligible ? 'CheckCircle' : 'XCircle' }}\",
+                \"size\": \"24px\",
+                \"color\": \"{{ testResults.data?.eligible ? '#16a34a' : '#dc2626' }}\"
+              }
+            },
+            {
+              \"type\": \"text\",
+              \"id\": \"eligibilityResult\",
+              \"configuration\": {
+                \"text\": \"{{ testResults.data?.eligible ? 'ELIGIBLE' : 'NOT ELIGIBLE' }}\",
+                \"fontSize\": \"20px\",
+                \"fontWeight\": \"bold\",
+                \"color\": \"{{ testResults.data?.eligible ? '#16a34a' : '#dc2626' }}\"
+              }
+            }
+          ]
+        },
+        {
+          \"type\": \"container\",
+          \"id\": \"reasoningContainer\",
+          \"configuration\": {
+            \"layout\": \"vertical\",
+            \"gap\": \"8px\",
+            \"padding\": \"16px\",
+            \"backgroundColor\": \"#f9fafb\",
+            \"borderRadius\": \"6px\",
+            \"border\": \"1px solid #e5e7eb\"
+          },
+          \"children\": [
+            {
+              \"type\": \"text\",
+              \"id\": \"reasoningTitle\",
+              \"configuration\": {
+                \"text\": \"Reasoning\",
+                \"fontSize\": \"16px\",
+                \"fontWeight\": \"medium\",
+                \"color\": \"#374151\"
+              }
+            },
+            {
+              \"type\": \"text\",
+              \"id\": \"reasoningText\",
+              \"configuration\": {
+                \"text\": \"{{ testResults.data?.reasoning || 'No reasoning provided' }}\",
+                \"fontSize\": \"14px\",
+                \"color\": \"#6b7280\",
+                \"lineHeight\": \"1.5\"
+              }
+            }
+          ]
+        },
+        {
+          \"type\": \"container\",
+          \"id\": \"testDetailsContainer\",
+          \"configuration\": {
+            \"layout\": \"vertical\",
+            \"gap\": \"12px\",
+            \"padding\": \"16px\",
+            \"backgroundColor\": \"#ffffff\",
+            \"borderRadius\": \"6px\",
+            \"border\": \"1px solid #e5e7eb\"
+          },
+          \"children\": [
+            {
+              \"type\": \"text\",
+              \"id\": \"detailsTitle\",
+              \"configuration\": {
+                \"text\": \"Test Details\",
+                \"fontSize\": \"16px\",
+                \"fontWeight\": \"medium\",
+                \"color\": \"#374151\"
+              }
+            },
+            {
+              \"type\": \"container\",
+              \"id\": \"detailsGrid\",
+              \"configuration\": {
+                \"layout\": \"grid\",
+                \"columns\": 2,
+                \"gap\": \"12px\"
+              },
+              \"children\": [
+                {
+                  \"type\": \"text\",
+                  \"id\": \"testTimestamp\",
+                  \"configuration\": {
+                    \"text\": \"Test Time: {{ formatTimestamp(testResults.data?.timestamp) }}\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#6b7280\"
+                  }
+                },
+                {
+                  \"type\": \"text\",
+                  \"id\": \"testDuration\",
+                  \"configuration\": {
+                    \"text\": \"Duration: {{ testResults.data?.duration || 'N/A' }}ms\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#6b7280\"
+                  }
+                },
+                {
+                  \"type\": \"text\",
+                  \"id\": \"testRuleName\",
+                  \"configuration\": {
+                    \"text\": \"Rule: {{ testResults.data?.ruleName || 'Unknown' }}\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#6b7280\"
+                  }
+                },
+                {
+                  \"type\": \"text\",
+                  \"id\": \"testEmployeeName\",
+                  \"configuration\": {
+                    \"text\": \"Employee: {{ testResults.data?.employeeName || 'Unknown' }}\",
+                    \"fontSize\": \"14px\",
+                    \"color\": \"#6b7280\"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

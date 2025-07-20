@@ -1,0 +1,35 @@
+{
+  "name": "createRule",
+  "type": "restapi",
+  "resourceName": "EligibilityAPI",
+  "configuration": {
+    "method": "POST",
+    "url": "{{ EligibilityAPI.base_url }}/rules/create",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "{{ ruleNameInput.value }}",
+      "description": "{{ descriptionInput.value }}",
+      "type": "{{ ruleTypeSelect.value }}",
+      "configuration": "{{ getRuleConfiguration() }}"
+    },
+    "timeout": 30000,
+    "enableTransformer": true,
+    "transformer": "// Transform create rule response\nif (data.success) {\n  return {\n    success: true,\n    rule: data.data,\n    message: 'Rule created and deployed successfully'\n  };\n} else {\n  throw new Error(data.error?.message || 'Failed to create rule');\n}",
+    "triggerConditions": {
+      "onPageLoad": false,
+      "manual": true
+    },
+    "successNotification": {
+      "enabled": true,
+      "title": "Rule Created",
+      "description": "{{ self.data.rule.name }} has been created and deployed successfully"
+    },
+    "errorNotification": {
+      "enabled": true,
+      "title": "Failed to create rule",
+      "description": "{{ self.error?.message || 'Unable to create rule' }}"
+    }
+  }
+}

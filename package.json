@@ -1,0 +1,65 @@
+{
+  "name": "eligibility-rule-management-system",
+  "version": "1.0.0",
+  "description": "Complete prototype for eligibility rule management using Retool, Camunda DMN, and TypeScript middleware",
+  "main": "scripts/utilities/start-dev.js",
+  "scripts": {
+    "start": "node scripts/utilities/start-dev.js",
+    "dev": "node scripts/utilities/start-dev.js",
+    "validate": "node scripts/validation/validate-system.js",
+    "test-local": "node scripts/testing/local-test-setup.js",
+    "test-quick": "node scripts/testing/local-test-setup.js --skip-tests",
+    "check-deployment": "node scripts/validation/check-deployment-readiness.js",
+    "setup": "npm run validate && npm run test-local",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v && docker system prune -f",
+    "build": "cd middleware && npm run build",
+    "install-all": "npm install && cd middleware && npm install && cd ../data && npm install && cd ../tests && npm install",
+    "health": "curl http://localhost:3000/health && curl http://localhost:3001/health",
+    "logs:middleware": "docker-compose logs -f middleware",
+    "logs:data": "docker-compose logs -f data-api",
+    "logs:camunda": "docker-compose logs -f camunda",
+    "logs:postgres": "docker-compose logs -f postgres"
+  },
+  "keywords": [
+    "eligibility",
+    "rules",
+    "retool",
+    "camunda",
+    "dmn",
+    "typescript",
+    "docker",
+    "microservices"
+  ],
+  "author": "Development Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/eligibility-rules/issues"
+  },
+  "homepage": "https://github.com/your-org/eligibility-rules#readme",
+  "devDependencies": {
+    "axios": "^1.6.0"
+  },
+  "workspaces": [
+    "middleware",
+    "data",
+    "tests"
+  ],
+  "pre-deployment": {
+    "required-scripts": [
+      "test-local",
+      "check-deployment"
+    ],
+    "warning": "DO NOT DEPLOY without running npm run test-local first!"
+  }
+}

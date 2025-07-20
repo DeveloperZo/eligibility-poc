@@ -1,0 +1,112 @@
+[
+  {
+    "id": "EMP001",
+    "name": "John Smith",
+    "age": 25,
+    "groupNumber": "GRP-100",
+    "healthPlan": "PLAN-A",
+    "dateOfBirth": "1999-03-15",
+    "email": "john.smith@company.com",
+    "department": "Engineering",
+    "hireDate": "2023-01-15"
+  },
+  {
+    "id": "EMP002",
+    "name": "Sarah Johnson",
+    "age": 17,
+    "groupNumber": "GRP-100",
+    "healthPlan": "PLAN-B",
+    "dateOfBirth": "2007-08-22",
+    "email": "sarah.johnson@company.com",
+    "department": "Intern",
+    "hireDate": "2024-06-01"
+  },
+  {
+    "id": "EMP003",
+    "name": "Michael Davis",
+    "age": 32,
+    "groupNumber": "GRP-200",
+    "healthPlan": "PLAN-A",
+    "dateOfBirth": "1992-12-03",
+    "email": "michael.davis@company.com",
+    "department": "Marketing",
+    "hireDate": "2020-09-10"
+  },
+  {
+    "id": "EMP004",
+    "name": "Emily Wilson",
+    "age": 28,
+    "groupNumber": "GRP-300",
+    "healthPlan": "PLAN-C",
+    "dateOfBirth": "1996-05-18",
+    "email": "emily.wilson@company.com",
+    "department": "HR",
+    "hireDate": "2022-03-01"
+  },
+  {
+    "id": "EMP005",
+    "name": "David Brown",
+    "age": 45,
+    "groupNumber": "GRP-100",
+    "healthPlan": null,
+    "dateOfBirth": "1979-11-12",
+    "email": "david.brown@company.com",
+    "department": "Finance",
+    "hireDate": "2018-07-20"
+  },
+  {
+    "id": "EMP006",
+    "name": "Lisa Garcia",
+    "age": 18,
+    "groupNumber": "GRP-400",
+    "healthPlan": "PLAN-B",
+    "dateOfBirth": "2006-12-31",
+    "email": "lisa.garcia@company.com",
+    "department": "Customer Service",
+    "hireDate": "2024-01-02"
+  },
+  {
+    "id": "EMP007",
+    "name": "Robert Martinez",
+    "age": 55,
+    "groupNumber": "INVALID-GRP",
+    "healthPlan": "PLAN-A",
+    "dateOfBirth": "1969-04-07",
+    "email": "robert.martinez@company.com",
+    "department": "Operations",
+    "hireDate": "2015-11-30"
+  },
+  {
+    "id": "EMP008",
+    "name": "Jennifer Lee",
+    "age": 29,
+    "groupNumber": "GRP-200",
+    "healthPlan": "EXPIRED-PLAN",
+    "dateOfBirth": "1995-09-25",
+    "email": "jennifer.lee@company.com",
+    "department": "Engineering",
+    "hireDate": "2021-05-15"
+  },
+  {
+    "id": "EMP009",
+    "name": "Christopher Taylor",
+    "age": 21,
+    "groupNumber": "GRP-300",
+    "healthPlan": "PLAN-A",
+    "dateOfBirth": "2003-02-14",
+    "email": "christopher.taylor@company.com",
+    "department": "Sales",
+    "hireDate": "2024-02-20"
+  },
+  {
+    "id": "EMP010",
+    "name": "Amanda Rodriguez",
+    "age": 16,
+    "groupNumber": "GRP-100",
+    "healthPlan": "PLAN-B",
+    "dateOfBirth": "2008-06-10",
+    "email": "amanda.rodriguez@company.com",
+    "department": "Intern",
+    "hireDate": "2024-07-01"
+  }
+]

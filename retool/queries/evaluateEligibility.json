@@ -1,0 +1,34 @@
+{
+  "name": "evaluateEligibility",
+  "type": "restapi",
+  "resourceName": "EligibilityAPI",
+  "configuration": {
+    "method": "POST",
+    "url": "{{ EligibilityAPI.base_url }}/evaluate",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "employeeId": "{{ employeeSelect.value }}",
+      "ruleIds": "{{ testRuleSelect.value ? [testRuleSelect.value] : [] }}",
+      "useMockData": "{{ dataSourceSelect.value === 'mock' }}"
+    },
+    "timeout": 20000,
+    "enableTransformer": true,
+    "transformer": "// Transform evaluation response\nif (data.success) {\n  return {\n    success: true,\n    results: data.data.results || [],\n    summary: data.data.summary,\n    timestamp: data.timestamp\n  };\n} else {\n  throw new Error(data.error?.message || 'Failed to evaluate eligibility');\n}",
+    "triggerConditions": {
+      "onPageLoad": false,
+      "manual": true
+    },
+    "successNotification": {
+      "enabled": true,
+      "title": "Evaluation Complete",
+      "description": "Eligibility evaluation completed successfully"
+    },
+    "errorNotification": {
+      "enabled": true,
+      "title": "Evaluation Failed",
+      "description": "{{ self.error?.message || 'Unable to evaluate eligibility' }}"
+    }
+  }
+}

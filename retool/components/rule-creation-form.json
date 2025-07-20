@@ -1,0 +1,67 @@
+            \"layout\": \"horizontal\",
+            \"gap\": \"12px\"
+          },
+          \"children\": [
+            {
+              \"type\": \"button\",
+              \"id\": \"validateRuleButton\",
+              \"configuration\": {
+                \"text\": \"Validate Rule\",
+                \"variant\": \"outline\",
+                \"color\": \"blue\",
+                \"onClick\": \"validateRule()\",
+                \"disabled\": \"{{ !ruleNameInput.value || !ruleTypeSelect.value }}\"
+              }
+            },
+            {
+              \"type\": \"button\",
+              \"id\": \"createRuleButton\",
+              \"configuration\": {
+                \"text\": \"Create Rule\",
+                \"variant\": \"solid\",
+                \"color\": \"blue\",
+                \"onClick\": \"createRule()\",
+                \"disabled\": \"{{ !ruleNameInput.value || !ruleTypeSelect.value || createRule.isFetching }}\",
+                \"loading\": \"{{ createRule.isFetching }}\"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      \"type\": \"container\",
+      \"id\": \"validationResultsContainer\",
+      \"configuration\": {
+        \"layout\": \"vertical\",
+        \"padding\": \"16px\",
+        \"backgroundColor\": \"#fef3c7\",
+        \"borderRadius\": \"6px\",
+        \"border\": \"1px solid #f59e0b\",
+        \"marginTop\": \"16px\",
+        \"hidden\": \"{{ !validationResults.data }}\"
+      },
+      \"children\": [
+        {
+          \"type\": \"text\",
+          \"id\": \"validationTitle\",
+          \"configuration\": {
+            \"text\": \"Validation Results\",
+            \"fontSize\": \"16px\",
+            \"fontWeight\": \"medium\",
+            \"color\": \"#92400e\"
+          }
+        },
+        {
+          \"type\": \"text\",
+          \"id\": \"validationMessage\",
+          \"configuration\": {
+            \"text\": \"{{ validationResults.data?.message || '' }}\",
+            \"fontSize\": \"14px\",
+            \"color\": \"#92400e\"
+          }
+        }
+      ]
+    }
+  ]
+}

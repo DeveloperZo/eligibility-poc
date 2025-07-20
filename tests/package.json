@@ -1,0 +1,49 @@
+{
+  "name": "eligibility-rule-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive test suite for the eligibility rule management system",
+  "main": "run-tests.js",
+  "scripts": {
+    "test": "node run-tests.js",
+    "test:integration": "npx tsx integration-tests.ts",
+    "test:postman": "newman run api-tests.postman_collection.json --reporters cli,json --reporter-json-export postman-results.json",
+    "test:health": "node -e \"require('./run-tests.js').checkSystemHealth()\"",
+    "test:performance": "node -e \"require('./run-tests.js').runPerformanceBenchmarks()\"",
+    "test:verbose": "node run-tests.js --verbose",
+    "test:ci": "node run-tests.js --skip-interactive",
+    "report:html": "open test-report.html",
+    "report:json": "cat test-report.json | jq .",
+    "cleanup": "rm -f test-report.* postman-results.json",
+    "install-deps": "npm install axios tsx newman"
+  },
+  "keywords": [
+    "testing",
+    "integration",
+    "eligibility",
+    "rules",
+    "camunda",
+    "retool",
+    "dmn"
+  ],
+  "author": "Development Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "tsx": "^4.6.0"
+  },
+  "devDependencies": {
+    "newman": "^6.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/eligibility-rules/issues"
+  },
+  "homepage": "https://github.com/your-org/eligibility-rules#readme"
+}

@@ -1,0 +1,128 @@
+{
+  "type": "container",
+  "id": "mainLayout",
+  "configuration": {
+    "layout": "vertical",
+    "padding": "16px",
+    "backgroundColor": "#f8fafc"
+  },
+  "children": [
+    {
+      "type": "container",
+      "id": "headerContainer",
+      "configuration": {
+        "layout": "horizontal",
+        "justifyContent": "space-between",
+        "alignItems": "center",
+        "backgroundColor": "#ffffff",
+        "padding": "16px 24px",
+        "borderRadius": "8px",
+        "boxShadow": "0 1px 3px rgba(0,0,0,0.1)",
+        "marginBottom": "24px"
+      },
+      "children": [
+        {
+          "type": "text",
+          "id": "appTitle",
+          "configuration": {
+            "text": "Eligibility Rule Manager",
+            "fontSize": "24px",
+            "fontWeight": "bold",
+            "color": "#1f2937"
+          }
+        },
+        {
+          "type": "container",
+          "id": "healthStatusContainer",
+          "configuration": {
+            "layout": "horizontal",
+            "alignItems": "center",
+            "gap": "8px"
+          },
+          "children": [
+            {
+              "type": "badge",
+              "id": "healthStatusBadge",
+              "configuration": {
+                "text": "{{ healthCheck.data ? 'System Healthy' : 'System Error' }}",
+                "color": "{{ healthCheck.data ? 'green' : 'red' }}",
+                "variant": "solid"
+              }
+            },
+            {
+              "type": "button",
+              "id": "refreshHealthButton",
+              "configuration": {
+                "text": "🔄",
+                "variant": "ghost",
+                "size": "small",
+                "onClick": "healthCheck.trigger()"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "tabs",
+      "id": "mainTabs",
+      "configuration": {
+        "tabs": [
+          {
+            "id": "createRuleTab",
+            "label": "Create Rule",
+            "icon": "Plus"
+          },
+          {
+            "id": "manageRulesTab", 
+            "label": "Manage Rules",
+            "icon": "Settings"
+          },
+          {
+            "id": "testRulesTab",
+            "label": "Test Rules", 
+            "icon": "Play"
+          }
+        ],
+        "defaultTab": "createRuleTab"
+      },
+      "children": [
+        {
+          "tabId": "createRuleTab",
+          "component": "ruleCreationForm"
+        },
+        {
+          "tabId": "manageRulesTab",
+          "component": "rulesManagementTable"
+        },
+        {
+          "tabId": "testRulesTab",
+          "component": "ruleTestingPanel"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "id": "footerContainer",
+      "configuration": {
+        "layout": "horizontal",
+        "justifyContent": "center",
+        "backgroundColor": "#ffffff",
+        "padding": "12px 24px",
+        "borderRadius": "8px",
+        "marginTop": "24px",
+        "fontSize": "14px",
+        "color": "#6b7280"
+      },
+      "children": [
+        {
+          "type": "text",
+          "id": "footerText",
+          "configuration": {
+            "text": "Eligibility Rule Management System v1.0 | Connected to {{ EligibilityAPI.base_url }}"
+          }
+        }
+      ]
+    }
+  ]
+}

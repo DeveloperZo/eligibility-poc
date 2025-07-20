@@ -1,0 +1,99 @@
+[
+  {
+    "id": "PLAN-A",
+    "name": "Premium Health Plan",
+    "type": "comprehensive",
+    "description": "Full coverage health plan with dental and vision",
+    "eligibleGroups": ["GRP-100", "GRP-200", "GRP-300"],
+    "monthlyPremium": 450.00,
+    "deductible": 1000,
+    "status": "active",
+    "benefits": {
+      "medical": true,
+      "dental": true,
+      "vision": true,
+      "prescription": true,
+      "mentalHealth": true
+    },
+    "effectiveDate": "2024-01-01",
+    "expirationDate": "2024-12-31"
+  },
+  {
+    "id": "PLAN-B",
+    "name": "Standard Health Plan",
+    "type": "standard",
+    "description": "Basic medical coverage with optional dental",
+    "eligibleGroups": ["GRP-100", "GRP-400"],
+    "monthlyPremium": 275.00,
+    "deductible": 2500,
+    "status": "active",
+    "benefits": {
+      "medical": true,
+      "dental": false,
+      "vision": false,
+      "prescription": true,
+      "mentalHealth": false
+    },
+    "effectiveDate": "2024-01-01",
+    "expirationDate": "2024-12-31"
+  },
+  {
+    "id": "PLAN-C",
+    "name": "Executive Health Plan",
+    "type": "executive",
+    "description": "Premium executive plan with all benefits",
+    "eligibleGroups": ["GRP-300"],
+    "monthlyPremium": 750.00,
+    "deductible": 500,
+    "status": "active",
+    "benefits": {
+      "medical": true,
+      "dental": true,
+      "vision": true,
+      "prescription": true,
+      "mentalHealth": true,
+      "wellness": true,
+      "executivePhysical": true
+    },
+    "effectiveDate": "2024-01-01",
+    "expirationDate": "2024-12-31"
+  },
+  {
+    "id": "EXPIRED-PLAN",
+    "name": "Legacy Health Plan",
+    "type": "legacy",
+    "description": "Discontinued plan for existing members",
+    "eligibleGroups": [],
+    "monthlyPremium": 300.00,
+    "deductible": 1500,
+    "status": "expired",
+    "benefits": {
+      "medical": true,
+      "dental": false,
+      "vision": false,
+      "prescription": true,
+      "mentalHealth": false
+    },
+    "effectiveDate": "2023-01-01",
+    "expirationDate": "2023-12-31"
+  },
+  {
+    "id": "PLAN-D",
+    "name": "Basic Coverage",
+    "type": "basic",
+    "description": "Minimal coverage for temporary workers",
+    "eligibleGroups": ["GRP-400"],
+    "monthlyPremium": 150.00,
+    "deductible": 5000,
+    "status": "active",
+    "benefits": {
+      "medical": true,
+      "dental": false,
+      "vision": false,
+      "prescription": false,
+      "mentalHealth": false
+    },
+    "effectiveDate": "2024-01-01",
+    "expirationDate": "2024-12-31"
+  }
+]

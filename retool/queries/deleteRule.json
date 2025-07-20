@@ -1,0 +1,29 @@
+{
+  "name": "deleteRule",
+  "type": "restapi",
+  "resourceName": "EligibilityAPI",
+  "configuration": {
+    "method": "DELETE",
+    "url": "{{ EligibilityAPI.base_url }}/rules/{{ additionalScope?.ruleId || rulesTable.selectedRow?.id }}",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "timeout": 15000,
+    "enableTransformer": true,
+    "transformer": "// Transform delete rule response\nif (data.success) {\n  return {\n    success: true,\n    message: 'Rule deleted successfully'\n  };\n} else {\n  throw new Error(data.error?.message || 'Failed to delete rule');\n}",
+    "triggerConditions": {
+      "onPageLoad": false,
+      "manual": true
+    },
+    "successNotification": {
+      "enabled": true,
+      "title": "Rule Deleted",
+      "description": "The rule has been successfully removed"
+    },
+    "errorNotification": {
+      "enabled": true,
+      "title": "Failed to delete rule",
+      "description": "{{ self.error?.message || 'Unable to delete rule' }}"
+    }
+  }
+}

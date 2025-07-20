@@ -1,0 +1,25 @@
+{
+  "name": "healthCheck",
+  "type": "restapi",
+  "resourceName": "EligibilityAPI",
+  "configuration": {
+    "method": "GET",
+    "url": "{{ EligibilityAPI.base_url.replace('/api', '') }}/health",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "timeout": 5000,
+    "enableTransformer": true,
+    "transformer": "// Transform health check response\nreturn {\n  data: data.data || null,\n  status: data.data?.status || 'UNKNOWN',\n  healthy: data.data?.status === 'OK',\n  dependencies: data.data?.dependencies || {}\n};",
+    "triggerConditions": {
+      "onPageLoad": true,
+      "manual": false
+    },
+    "successNotification": {
+      "enabled": false
+    },
+    "errorNotification": {
+      "enabled": false
+    }
+  }
+}
