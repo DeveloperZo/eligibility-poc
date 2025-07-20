@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node scripts/utilities/start-dev.js",
     "dev": "node scripts/utilities/start-dev.js",
+    "dev-fast": "node scripts/utilities/start-dev-fast.js",
+    "dev-fast:win": "powershell -ExecutionPolicy Bypass -File scripts/utilities/start-dev-fast.ps1",
     "validate": "node scripts/validation/validate-system.js",
     "test-local": "node scripts/testing/local-test-setup.js",
     "test-quick": "node scripts/testing/local-test-setup.js --skip-tests",

@@ -1,0 +1,20 @@
+# Development Dockerfile with hot reload
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dependencies first for better caching
+COPY package*.json ./
+RUN npm ci
+
+# Copy TypeScript config
+COPY tsconfig.json ./
+
+# Copy source code
+COPY src ./src
+
+# Expose port
+EXPOSE 3000
+
+# Use ts-node-dev for hot reload in development
+CMD ["npm", "run", "dev"]

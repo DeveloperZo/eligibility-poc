@@ -108,6 +108,27 @@ export class App {
       res.json(response);
     });
 
+    /**
+     * @swagger
+     * /health:
+     *   get:
+     *     summary: Health Check
+     *     description: Check the health status of the middleware and all dependencies
+     *     tags: [System]
+     *     responses:
+     *       200:
+     *         description: Service is healthy
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       503:
+     *         description: Service unhealthy - dependency issues
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     // Health check endpoint with dependency checks
     this.app.get('/health', async (req: Request, res: Response) => {
       try {
@@ -232,6 +253,21 @@ export class App {
   private createApiRouter(): express.Router {
     const router = express.Router();
 
+    /**
+     * @swagger
+     * /api/camunda/health:
+     *   get:
+     *     summary: Camunda Health Check
+     *     description: Check the health status of the Camunda engine
+     *     tags: [Camunda]
+     *     responses:
+     *       200:
+     *         description: Camunda is healthy
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     // Camunda endpoints
     router.get('/camunda/health', async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -249,6 +285,21 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/camunda/engines:
+     *   get:
+     *     summary: Get Camunda Engine Information
+     *     description: Retrieve information about available Camunda engines
+     *     tags: [Camunda]
+     *     responses:
+     *       200:
+     *         description: Engine information retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.get('/camunda/engines', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const engines = await camundaService.getEngineInfo();
@@ -265,6 +316,21 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/camunda/decision-definitions:
+     *   get:
+     *     summary: Get Decision Definitions
+     *     description: Retrieve all deployed decision definitions from Camunda
+     *     tags: [Camunda]
+     *     responses:
+     *       200:
+     *         description: Decision definitions retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.get('/camunda/decision-definitions', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const definitions = await camundaService.getDecisionDefinitions();
@@ -281,6 +347,21 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/data/health:
+     *   get:
+     *     summary: Data API Health Check
+     *     description: Check the health status of the Data API service
+     *     tags: [Data API]
+     *     responses:
+     *       200:
+     *         description: Data API is healthy
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     // Data API endpoints
     router.get('/data/health', async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -298,6 +379,21 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/data/employees:
+     *   get:
+     *     summary: Get All Employees
+     *     description: Retrieve all employees from the system
+     *     tags: [Data API]
+     *     responses:
+     *       200:
+     *         description: Employees retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.get('/data/employees', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const employees = await dataApiService.getAllEmployees();
@@ -314,6 +410,30 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/data/employees/{id}:
+     *   get:
+     *     summary: Get Employee by ID
+     *     description: Retrieve a specific employee by their ID
+     *     tags: [Data API]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         description: Employee ID
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Employee retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       404:
+     *         description: Employee not found
+     */
     router.get('/data/employees/:id', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { id } = req.params;
@@ -331,6 +451,30 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/data/employees/{id}/context:
+     *   get:
+     *     summary: Get Employee Eligibility Context
+     *     description: Retrieve full eligibility context for an employee including health plans and group memberships
+     *     tags: [Data API]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         description: Employee ID
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Employee context retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       404:
+     *         description: Employee not found
+     */
     router.get('/data/employees/:id/context', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { id } = req.params;
@@ -348,6 +492,21 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/data/health-plans:
+     *   get:
+     *     summary: Get All Health Plans
+     *     description: Retrieve all available health plans in the system
+     *     tags: [Data API]
+     *     responses:
+     *       200:
+     *         description: Health plans retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.get('/data/health-plans', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const healthPlans = await dataApiService.getAllHealthPlans();
@@ -364,6 +523,21 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/data/groups:
+     *   get:
+     *     summary: Get All Groups
+     *     description: Retrieve all employee groups in the system
+     *     tags: [Data API]
+     *     responses:
+     *       200:
+     *         description: Groups retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.get('/data/groups', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const groups = await dataApiService.getAllGroups();
@@ -380,6 +554,21 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/rules:
+     *   get:
+     *     summary: List All Rules
+     *     description: Retrieve all deployed eligibility rules from Camunda
+     *     tags: [Rules Management]
+     *     responses:
+     *       200:
+     *         description: Rules retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     // Rules management endpoints
     router.get('/rules', async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -390,6 +579,42 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/rules/create:
+     *   post:
+     *     summary: Create New Rule
+     *     description: Create and deploy a new eligibility rule to Camunda
+     *     tags: [Rules Management]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               name:
+     *                 type: string
+     *                 description: Rule name
+     *               description:
+     *                 type: string
+     *                 description: Rule description
+     *               ruleDmn:
+     *                 type: string
+     *                 description: DMN XML content
+     *             required:
+     *               - name
+     *               - ruleDmn
+     *     responses:
+     *       201:
+     *         description: Rule created successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       400:
+     *         description: Invalid rule data
+     */
     router.post('/rules/create', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { ValidationMiddleware } = await import('./middleware/validation.middleware');
@@ -405,6 +630,30 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/rules/{id}:
+     *   get:
+     *     summary: Get Rule by ID
+     *     description: Retrieve a specific rule by its ID
+     *     tags: [Rules Management]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         description: Rule ID
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Rule retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       404:
+     *         description: Rule not found
+     */
     router.get('/rules/:id', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { rulesController } = await import('./controllers/rules.controller');
@@ -414,6 +663,46 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/rules/{id}:
+     *   put:
+     *     summary: Update Rule
+     *     description: Update an existing eligibility rule
+     *     tags: [Rules Management]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         description: Rule ID
+     *         schema:
+     *           type: string
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               name:
+     *                 type: string
+     *                 description: Rule name
+     *               description:
+     *                 type: string
+     *                 description: Rule description
+     *               ruleDmn:
+     *                 type: string
+     *                 description: DMN XML content
+     *     responses:
+     *       200:
+     *         description: Rule updated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       404:
+     *         description: Rule not found
+     */
     router.put('/rules/:id', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { ValidationMiddleware } = await import('./middleware/validation.middleware');
@@ -428,6 +717,30 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/rules/{id}:
+     *   delete:
+     *     summary: Delete Rule
+     *     description: Delete a rule from Camunda
+     *     tags: [Rules Management]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         description: Rule ID
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Rule deleted successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       404:
+     *         description: Rule not found
+     */
     router.delete('/rules/:id', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { rulesController } = await import('./controllers/rules.controller');
@@ -437,6 +750,45 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/rules/{id}/test:
+     *   post:
+     *     summary: Test Rule
+     *     description: Test a specific rule with sample employee data
+     *     tags: [Rules Management]
+     *     parameters:
+     *       - in: path
+     *         name: id
+     *         required: true
+     *         description: Rule ID
+     *         schema:
+     *           type: string
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               employeeId:
+     *                 type: string
+     *                 description: Employee ID to test
+     *               testData:
+     *                 type: object
+     *                 description: Optional test data override
+     *             required:
+     *               - employeeId
+     *     responses:
+     *       200:
+     *         description: Rule test completed
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       404:
+     *         description: Rule or employee not found
+     */
     router.post('/rules/:id/test', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { ValidationMiddleware } = await import('./middleware/validation.middleware');
@@ -451,6 +803,41 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/evaluate:
+     *   post:
+     *     summary: Evaluate Employee Eligibility
+     *     description: Evaluate an employee's eligibility for benefits using deployed rules
+     *     tags: [Eligibility Evaluation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               employeeId:
+     *                 type: string
+     *                 description: Employee ID to evaluate
+     *               ruleId:
+     *                 type: string
+     *                 description: Specific rule ID to use (optional)
+     *               context:
+     *                 type: object
+     *                 description: Additional context data (optional)
+     *             required:
+     *               - employeeId
+     *     responses:
+     *       200:
+     *         description: Evaluation completed successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       404:
+     *         description: Employee not found
+     */
     // Evaluation endpoints
     router.post('/evaluate', async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -466,6 +853,38 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/evaluate/batch:
+     *   post:
+     *     summary: Batch Evaluate Multiple Employees
+     *     description: Evaluate multiple employees' eligibility in a single request
+     *     tags: [Eligibility Evaluation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               employeeIds:
+     *                 type: array
+     *                 items:
+     *                   type: string
+     *                 description: Array of employee IDs to evaluate
+     *               ruleId:
+     *                 type: string
+     *                 description: Specific rule ID to use (optional)
+     *             required:
+     *               - employeeIds
+     *     responses:
+     *       200:
+     *         description: Batch evaluation completed successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/evaluate/batch', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { ValidationMiddleware } = await import('./middleware/validation.middleware');
@@ -480,6 +899,30 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/evaluate/history/{employeeId}:
+     *   get:
+     *     summary: Get Evaluation History
+     *     description: Retrieve evaluation history for a specific employee
+     *     tags: [Eligibility Evaluation]
+     *     parameters:
+     *       - in: path
+     *         name: employeeId
+     *         required: true
+     *         description: Employee ID
+     *         schema:
+     *           type: string
+     *     responses:
+     *       200:
+     *         description: Evaluation history retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     *       404:
+     *         description: Employee not found
+     */
     router.get('/evaluate/history/:employeeId', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { evaluationController } = await import('./controllers/evaluation.controller');
@@ -489,6 +932,21 @@ export class App {
       }
     });
 
+    /**
+     * @swagger
+     * /api/dmn/templates:
+     *   get:
+     *     summary: Get DMN Templates
+     *     description: Retrieve available DMN rule templates
+     *     tags: [DMN Generation]
+     *     responses:
+     *       200:
+     *         description: Templates retrieved successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     // DMN generation endpoints
     router.get('/dmn/templates', async (req: Request, res: Response, next: NextFunction) => {
       try {
@@ -499,6 +957,38 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/generate:
+     *   post:
+     *     summary: Generate DMN Rule
+     *     description: Generate a DMN rule from business logic specification
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               ruleType:
+     *                 type: string
+     *                 enum: [age, health-plan, group-number, custom]
+     *                 description: Type of rule to generate
+     *               parameters:
+     *                 type: object
+     *                 description: Rule parameters specific to the rule type
+     *             required:
+     *               - ruleType
+     *               - parameters
+     *     responses:
+     *       200:
+     *         description: DMN rule generated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/generate', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -508,6 +998,41 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/generate-and-deploy:
+     *   post:
+     *     summary: Generate and Deploy DMN Rule
+     *     description: Generate a DMN rule and immediately deploy it to Camunda
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               ruleType:
+     *                 type: string
+     *                 enum: [age, health-plan, group-number, custom]
+     *                 description: Type of rule to generate
+     *               parameters:
+     *                 type: object
+     *                 description: Rule parameters specific to the rule type
+     *               deploymentName:
+     *                 type: string
+     *                 description: Name for the deployment
+     *             required:
+     *               - ruleType
+     *               - parameters
+     *     responses:
+     *       201:
+     *         description: DMN rule generated and deployed successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/generate-and-deploy', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -517,6 +1042,40 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/generate/age:
+     *   post:
+     *     summary: Generate Age-Based Rule
+     *     description: Generate a DMN rule based on employee age criteria
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               minAge:
+     *                 type: number
+     *                 description: Minimum age requirement
+     *               maxAge:
+     *                 type: number
+     *                 description: Maximum age requirement
+     *               eligibilityResult:
+     *                 type: string
+     *                 description: Result when conditions are met
+     *             required:
+     *               - minAge
+     *               - eligibilityResult
+     *     responses:
+     *       200:
+     *         description: Age-based rule generated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/generate/age', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -526,6 +1085,39 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/generate/health-plan:
+     *   post:
+     *     summary: Generate Health Plan Rule
+     *     description: Generate a DMN rule based on health plan eligibility
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               healthPlanIds:
+     *                 type: array
+     *                 items:
+     *                   type: string
+     *                 description: List of eligible health plan IDs
+     *               eligibilityResult:
+     *                 type: string
+     *                 description: Result when conditions are met
+     *             required:
+     *               - healthPlanIds
+     *               - eligibilityResult
+     *     responses:
+     *       200:
+     *         description: Health plan rule generated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/generate/health-plan', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -535,6 +1127,39 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/generate/group-number:
+     *   post:
+     *     summary: Generate Group Number Rule
+     *     description: Generate a DMN rule based on employee group membership
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               groupNumbers:
+     *                 type: array
+     *                 items:
+     *                   type: string
+     *                 description: List of eligible group numbers
+     *               eligibilityResult:
+     *                 type: string
+     *                 description: Result when conditions are met
+     *             required:
+     *               - groupNumbers
+     *               - eligibilityResult
+     *     responses:
+     *       200:
+     *         description: Group number rule generated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/generate/group-number', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -544,6 +1169,37 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/test:
+     *   post:
+     *     summary: Test DMN Rule
+     *     description: Test a DMN rule with sample data without deploying
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               dmnXml:
+     *                 type: string
+     *                 description: DMN XML content to test
+     *               testData:
+     *                 type: object
+     *                 description: Test input data
+     *             required:
+     *               - dmnXml
+     *               - testData
+     *     responses:
+     *       200:
+     *         description: DMN test completed successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/test', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -553,6 +1209,33 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/validate:
+     *   post:
+     *     summary: Validate DMN Rule
+     *     description: Validate DMN XML structure and syntax
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               dmnXml:
+     *                 type: string
+     *                 description: DMN XML content to validate
+     *             required:
+     *               - dmnXml
+     *     responses:
+     *       200:
+     *         description: DMN validation completed
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/validate', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -562,6 +1245,43 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/custom:
+     *   post:
+     *     summary: Generate Custom DMN Rule
+     *     description: Generate a custom DMN rule with flexible conditions
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               ruleName:
+     *                 type: string
+     *                 description: Name for the custom rule
+     *               conditions:
+     *                 type: array
+     *                 items:
+     *                   type: object
+     *                 description: Array of custom conditions
+     *               outputResult:
+     *                 type: string
+     *                 description: Result when conditions are met
+     *             required:
+     *               - ruleName
+     *               - conditions
+     *               - outputResult
+     *     responses:
+     *       200:
+     *         description: Custom DMN rule generated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/custom', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -571,6 +1291,35 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/batch:
+     *   post:
+     *     summary: Batch Generate DMN Rules
+     *     description: Generate multiple DMN rules in a single request
+     *     tags: [DMN Generation]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               rules:
+     *                 type: array
+     *                 items:
+     *                   type: object
+     *                 description: Array of rule specifications
+     *             required:
+     *               - rules
+     *     responses:
+     *       200:
+     *         description: Batch generation completed successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.post('/dmn/batch', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
@@ -580,6 +1329,21 @@ export class App {
       }
     });
     
+    /**
+     * @swagger
+     * /api/dmn/sample:
+     *   get:
+     *     summary: Get Sample DMN Rule
+     *     description: Generate a sample DMN rule for demonstration purposes
+     *     tags: [DMN Generation]
+     *     responses:
+     *       200:
+     *         description: Sample DMN rule generated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ApiResponse'
+     */
     router.get('/dmn/sample', async (req: Request, res: Response, next: NextFunction) => {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
