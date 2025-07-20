@@ -27,13 +27,23 @@ export class App {
       contentSecurityPolicy: false, // Disabled for Retool integration
     }));
 
-    // CORS configuration for Retool integration
+    // CORS configuration for Retool integration and ngrok
     this.app.use(cors({
-      origin: process.env.RETOOL_BASE_URL || true, // Allow all origins in development
+      origin: [
+        process.env.RETOOL_BASE_URL || 'https://gatekeeperzo34.retool.com',
+        'https://20f445bf2d03.ngrok-free.app',
+        /\.ngrok-free\.app$/,  // Allow any ngrok-free.app subdomain
+        'http://localhost:3000',
+        'https://localhost:3000'
+      ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'ngrok-skip-browser-warning'],
+      optionsSuccessStatus: 200 // Some legacy browsers choke on 204
     }));
+
+    // Handle preflight requests
+    this.app.options('*', cors());
 
     // Body parsing middleware
     this.app.use(express.json({ limit: '10mb' }));
