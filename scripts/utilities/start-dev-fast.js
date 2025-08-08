@@ -10,7 +10,7 @@
 const { exec, spawn } = require('child_process');
 const path = require('path');
 
-console.log('🚀 Starting Eligibility Rule Management - Development Environment');
+console.log('🚀 Starting benefit plan Management - Development Environment');
 console.log('');
 
 // Set working directory to project root

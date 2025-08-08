@@ -1,14 +1,14 @@
 # Retool Application User Guide
 
-## Welcome to the Eligibility Rule Manager
+## Welcome to the benefit plan Manager
 
-This application allows business users to create, manage, and test employee eligibility rules without requiring technical knowledge. The system automatically converts your business rules into technical format and deploys them to the decision engine.
+This application allows business users to create, manage, and test employee benefit plans without requiring technical knowledge. The system automatically converts your business rules into technical format and deploys them to the decision engine.
 
 ## Getting Started
 
 ### System Overview
 
-The Eligibility Rule Manager helps you:
+The benefit plan Manager helps you:
 - **Create Rules**: Define eligibility criteria using simple forms
 - **Manage Rules**: View, edit, and delete existing rules  
 - **Test Rules**: Validate rules with real or mock employee data
@@ -18,7 +18,7 @@ The Eligibility Rule Manager helps you:
 
 The application has three main sections accessible via tabs:
 
-1. **Create Rule** - Build new eligibility rules
+1. **Create Rule** - Build new benefit plans
 2. **Manage Rules** - View and manage existing rules
 3. **Test Rules** - Test rules with employee data
 
@@ -26,7 +26,7 @@ The application has three main sections accessible via tabs:
 
 ### Step 1: Choose Rule Type
 
-Select from three types of eligibility rules:
+Select from three types of benefit plans:
 
 #### Age Validation
 - **Purpose**: Check if employee meets minimum age requirement

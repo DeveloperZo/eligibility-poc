@@ -1,7 +1,7 @@
 # PowerShell Development Environment Script
 # Fast development startup with hot reload
 
-Write-Host "🚀 Starting Eligibility Rule Management - Development Environment" -ForegroundColor Green
+Write-Host "🚀 Starting benefit plan Management - Development Environment" -ForegroundColor Green
 Write-Host ""
 
 # Change to project root

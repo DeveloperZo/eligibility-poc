@@ -1,6 +1,6 @@
 # Retool Application Testing Checklist
 
-Use this checklist to verify that the Eligibility Rule Manager application is working correctly after installation.
+Use this checklist to verify that the benefit plan Manager application is working correctly after installation.
 
 ## Pre-Testing Setup
 

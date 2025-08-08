@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Eligibility Rule Management API - Complete Test Suite",
-    "description": "Comprehensive API test collection for the complete eligibility rule management system workflow",
+    "name": "benefit plan Management API - Complete Test Suite",
+    "description": "Comprehensive API test collection for the complete benefit plan management system workflow",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

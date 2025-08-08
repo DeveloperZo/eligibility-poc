@@ -1,6 +1,6 @@
-# Complete Testing Guide for Eligibility Rule Management System
+# Complete Testing Guide for benefit plan Management System
 
-This guide provides comprehensive instructions for testing the complete eligibility rule management system, from rule creation in Retool through DMN deployment to Camunda and final eligibility evaluation.
+This guide provides comprehensive instructions for testing the complete benefit plan management system, from rule creation in Retool through DMN deployment to Camunda and final eligibility evaluation.
 
 ## Table of Contents
 

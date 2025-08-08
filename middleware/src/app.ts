@@ -7,6 +7,7 @@ import { IApiResponse, IHealthCheckResponse } from './models/interfaces';
 import { logger } from './utils/logger';
 import { camundaService } from './services/camunda.service';
 import { dataApiService } from './services/data-api.service';
+import { orchestrationController } from './controllers/orchestration.controller';
 
 export class App {
   public app: Application;
@@ -74,7 +75,7 @@ export class App {
       const response: IApiResponse = {
         success: true,
         data: {
-          message: 'Eligibility Rule Management Middleware',
+          message: 'benefit plan Management Middleware',
           version: '1.0.0',
           service: 'eligibility-middleware',
           endpoints: {
@@ -200,7 +201,7 @@ export class App {
       const spec = getSwaggerSpec(req);
       const html = swaggerUi.generateHTML(spec, {
         customCss: '.swagger-ui .topbar { display: none }',
-        customSiteTitle: 'Eligibility Rule Management API Documentation',
+        customSiteTitle: 'benefit plan Management API Documentation',
         swaggerOptions: {
           persistAuthorization: true,
           displayRequestDuration: true
@@ -231,8 +232,11 @@ export class App {
       res.json(getSwaggerSpec(req)); // Pass the request for dynamic URL
     });
 
-    // API routes placeholder
+    // API routes
     this.app.use('/api', this.createApiRouter());
+    
+    // Orchestration routes (benefit plan approval workflow)
+    this.app.use('/api', orchestrationController.router);
 
     // 404 handler
     this.app.use('*', (req: Request, res: Response) => {
@@ -558,7 +562,7 @@ export class App {
      * /api/rules:
      *   get:
      *     summary: List All Rules
-     *     description: Retrieve all deployed eligibility rules from Camunda
+     *     description: Retrieve all deployed benefit plans from Camunda
      *     tags: [Rules Management]
      *     responses:
      *       200:
@@ -583,7 +587,7 @@ export class App {
      * /api/rules/create:
      *   post:
      *     summary: Create New Rule
-     *     description: Create and deploy a new eligibility rule to Camunda
+     *     description: Create and deploy a new benefit plan to Camunda
      *     tags: [Rules Management]
      *     requestBody:
      *       required: true
@@ -667,7 +671,7 @@ export class App {
      * /api/rules/{id}:
      *   put:
      *     summary: Update Rule
-     *     description: Update an existing eligibility rule
+     *     description: Update an existing benefit plan
      *     tags: [Rules Management]
      *     parameters:
      *       - in: path

@@ -1,4 +1,4 @@
-# Architecture Guide - Eligibility Rule Management System
+# Architecture Guide - benefit plan Management System
 
 ---
 **Document Metadata**
@@ -15,7 +15,7 @@
   - v1.0.0 (2024-11-01): Initial architecture documentation
 ---
 
-This document defines the comprehensive technical architecture, design principles, and architectural decisions for the Eligibility Rule Management System.
+This document defines the comprehensive technical architecture, design principles, and architectural decisions for the benefit plan Management System.
 
 ## System Architecture Overview
 

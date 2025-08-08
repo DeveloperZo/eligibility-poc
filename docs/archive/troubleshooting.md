@@ -1,6 +1,6 @@
-# Troubleshooting Guide - Eligibility Rule Management System
+# Troubleshooting Guide - benefit plan Management System
 
-This guide provides solutions to common issues encountered when testing and operating the eligibility rule management system.
+This guide provides solutions to common issues encountered when testing and operating the benefit plan management system.
 
 ## Table of Contents
 

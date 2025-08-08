@@ -1,7 +1,7 @@
 {
   "name": "external-data-simulation",
   "version": "1.0.0",
-  "description": "Mock external data sources for eligibility rule testing",
+  "description": "Mock external data sources for benefit plan testing",
   "main": "api-server.js",
   "scripts": {
     "start": "node api-server.js",

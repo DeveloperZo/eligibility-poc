@@ -513,7 +513,7 @@ class IntegrationTestSuite {
 
     if (failed === 0) {
       console.log('\n🎉 ALL INTEGRATION TESTS PASSED!');
-      console.log('   The complete eligibility rule management system is working correctly.');
+      console.log('   The complete benefit plan management system is working correctly.');
       console.log('   Ready for production deployment.');
     } else {
       console.log('\n⚠️  INTEGRATION TESTS FAILED!');

@@ -1,7 +1,7 @@
 {
   "name": "eligibility-rule-management-system",
   "version": "1.0.0",
-  "description": "Complete prototype for eligibility rule management using Retool, Camunda DMN, and TypeScript middleware",
+  "description": "Complete prototype for benefit plan management using Retool, Camunda DMN, and TypeScript middleware",
   "main": "scripts/utilities/start-dev.js",
   "scripts": {
     "start": "node scripts/utilities/start-dev.js",

@@ -1,6 +1,6 @@
 # Retool Application Package
 
-This directory contains everything needed to create and deploy the Eligibility Rule Management application in Retool.
+This directory contains everything needed to create and deploy the benefit plan Management application in Retool.
 
 ## 📁 Directory Structure
 
@@ -36,7 +36,7 @@ retool/
 - Docker environment with Camunda and PostgreSQL running
 
 ### Installation Summary
-1. **Create Retool App**: New application named "Eligibility Rule Manager"
+1. **Create Retool App**: New application named "benefit plan Manager"
 2. **Configure API Resource**: REST API pointing to `http://localhost:3000/api`
 3. **Import Queries**: Add all query configurations from `queries/` directory
 4. **Add Functions**: Copy helper functions from `functions/helpers.js`
@@ -104,7 +104,7 @@ See [INSTALLATION_GUIDE.md](./INSTALLATION_GUIDE.md) for complete step-by-step i
 ## 👥 Target Users
 
 ### Business Users
-- **HR Personnel**: Create employee eligibility rules
+- **HR Personnel**: Create employee benefit plans
 - **Benefits Administrators**: Manage health plan requirements  
 - **Compliance Officers**: Ensure eligibility criteria compliance
 - **Operations Staff**: Test and validate rule accuracy

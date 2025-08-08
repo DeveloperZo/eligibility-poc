@@ -1,4 +1,4 @@
-// Helper functions for the Retool Eligibility Rule Management application
+// Helper functions for the Retool benefit plan Management application
 
 /**
  * Get rule configuration object based on current form values

@@ -1,6 +1,6 @@
-# Eligibility Rule Management System
+# POC System
 
-A modern, self-service platform for managing employee benefit eligibility rules using Retool, Camunda DMN, and TypeScript microservices.
+A modern, self-service platform for managing employee benefit plans with workflow lifecycle (versioning, approval, etc)
 
 ## 📚 Documentation
 
@@ -14,7 +14,6 @@ A modern, self-service platform for managing employee benefit eligibility rules 
 
 ## 🎯 What is This?
 
-The Eligibility Rule Management System empowers business users to manage benefit eligibility rules without IT intervention. It provides a visual interface for creating, testing, and deploying complex eligibility criteria using industry-standard decision management technology.
 
 **Key Benefits:**
 - 🚀 **Self-Service**: Business users manage rules independently

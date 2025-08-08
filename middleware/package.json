@@ -1,7 +1,7 @@
 {
   "name": "eligibility-middleware",
   "version": "1.0.0",
-  "description": "TypeScript middleware service for eligibility rule management between Retool and Camunda",
+  "description": "TypeScript middleware service for benefit plan management between Retool and Camunda",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",

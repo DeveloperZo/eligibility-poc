@@ -23,7 +23,7 @@
           \"type\": \"text\",
           \"id\": \"tableTitle\",
           \"configuration\": {
-            \"text\": \"Manage Eligibility Rules\",
+            \"text\": \"Manage benefit plans\",
             \"fontSize\": \"20px\",
             \"fontWeight\": \"semibold\",
             \"color\": \"#1f2937\"
@@ -230,7 +230,7 @@
         },
         \"emptyState\": {
           \"title\": \"No rules found\",
-          \"description\": \"Create your first eligibility rule to get started\",
+          \"description\": \"Create your first benefit plan to get started\",
           \"action\": {
             \"text\": \"Create Rule\",
             \"onClick\": \"mainTabs.setCurrentTab('createRuleTab')\"

@@ -376,7 +376,7 @@ class TestRunner {
     if (summary.failed === 0) {
       this.log('', 'info');
       this.log('🎉 ALL TESTS PASSED!', 'success');
-      this.log('   The eligibility rule management system is ready for production.', 'success');
+      this.log('   The benefit plan management system is ready for production.', 'success');
       this.log('   Complete workflow validated: Retool → DMN → Camunda → Evaluation', 'success');
     } else {
       this.log('', 'info');

@@ -1,4 +1,4 @@
-// Core interfaces for the eligibility rule management system
+// Core interfaces for the benefit plan management system
 
 export interface IRuleDefinition {
   id: string;

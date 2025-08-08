@@ -134,7 +134,7 @@ export const createGroupNumberRuleTemplate = (
 };
 
 /**
- * Complex eligibility rule template (combines multiple conditions)
+ * Complex benefit plan template (combines multiple conditions)
  */
 export const createComplexEligibilityTemplate = (
   ruleId: string,

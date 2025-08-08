@@ -1,4 +1,4 @@
-# QuickStart Guide - Eligibility Rule Management System
+# QuickStart Guide - benefit plan Management System
 
 ---
 **Document Metadata**
@@ -152,7 +152,7 @@ curl -X POST http://localhost:3000/api/evaluate \
    - Navigate to http://localhost:3333
    - Create admin account
    - Click "Create new" → "App"
-   - Name it "Eligibility Rule Manager"
+   - Name it "benefit plan Manager"
 
 2. **Configure API Resource**:
    - Go to Resources → Add Resource
@@ -369,4 +369,4 @@ After successful setup:
 
 ---
 
-** Congratulations!** Your Eligibility Rule Management System is now running. You can create rules, evaluate eligibility, and integrate with external systems.
+** Congratulations!** Your benefit plan Management System is now running. You can create rules, evaluate eligibility, and integrate with external systems.

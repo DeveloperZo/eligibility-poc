@@ -1,6 +1,6 @@
 # End-to-End Integration Testing Suite
 
-This directory contains comprehensive testing infrastructure for the eligibility rule management system, covering the complete workflow from rule creation in Retool through DMN deployment to Camunda and final eligibility evaluation.
+This directory contains comprehensive testing infrastructure for the benefit plan management system, covering the complete workflow from rule creation in Retool through DMN deployment to Camunda and final eligibility evaluation.
 
 ## 🧪 Test Suite Overview
 

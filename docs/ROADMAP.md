@@ -19,7 +19,7 @@
 
 ## Project Vision
 
-Transform benefit plan and eligibility rule management from a developer-dependent, slow process into a business-admin self-service platform where changes flow through governed, auditable workflows and versioned artifacts. Immediate action is to provide an self serve ease at building UI and BPMN/DMN items.If not possible entirely then pragmatic sequence acquiring high self serve functionality over time. 
+Transform benefit plan and benefit plan management from a developer-dependent, slow process into a business-admin self-service platform where changes flow through governed, auditable workflows and versioned artifacts. Immediate action is to provide an self serve ease at building UI and BPMN/DMN items.If not possible entirely then pragmatic sequence acquiring high self serve functionality over time. 
 
 ### Success Metrics
 

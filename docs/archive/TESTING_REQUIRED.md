@@ -2,7 +2,7 @@
 
 ## Critical Requirement
 
-**NO DEPLOYMENT of the Eligibility Rule Management System should occur without successfully completing the local testing suite.**
+**NO DEPLOYMENT of the benefit plan Management System should occur without successfully completing the local testing suite.**
 
 This system involves complex integrations between:
 - Retool frontend

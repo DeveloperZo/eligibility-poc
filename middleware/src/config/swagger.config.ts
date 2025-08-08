@@ -15,9 +15,9 @@ export const getSwaggerSpec = (req?: Request) => {
     definition: {
       openapi: '3.0.0',
       info: {
-        title: 'Eligibility Rule Management API',
+        title: 'benefit plan Management API',
         version: '1.0.0',
-        description: 'Production API for managing eligibility rules and benefit plans',
+        description: 'Production API for managing benefit plans and benefit plans',
         contact: {
           name: 'API Support',
           email: 'support@company.com'

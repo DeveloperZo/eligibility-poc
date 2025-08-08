@@ -414,7 +414,7 @@ Options:
   --verbose       Enable verbose logging
   --help          Show this help message
 
-This script ensures the complete eligibility rule management system
+This script ensures the complete benefit plan management system
 runs locally before any deployment by:
 
 1. Checking environment prerequisites

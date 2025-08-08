@@ -8,7 +8,7 @@
 const { exec } = require('child_process');
 const path = require('path');
 
-console.log('🚀 Eligibility Rule Management System - Development Startup');
+console.log('🚀 benefit plan Management System - Development Startup');
 console.log('='.repeat(60));
 
 async function checkPrerequisites() {

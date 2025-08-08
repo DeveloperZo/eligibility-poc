@@ -1,6 +1,6 @@
 # External Data Simulation API
 
-This directory contains mock external data sources that simulate real-world systems providing employee information, health plan data, and group numbers. These data sources are used during eligibility rule evaluation to provide context for DMN decision tables.
+This directory contains mock external data sources that simulate real-world systems providing employee information, health plan data, and group numbers. These data sources are used during benefit plan evaluation to provide context for DMN decision tables.
 
 ## Overview
 
@@ -167,4 +167,4 @@ The middleware service connects to this API to:
 3. Check group membership requirements
 4. Build context for DMN decision tables
 
-The combined data is used by Camunda DMN engine to evaluate eligibility rules created through the Retool interface.
+The combined data is used by Camunda DMN engine to evaluate benefit plans created through the Retool interface.

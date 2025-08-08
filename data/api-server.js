@@ -42,9 +42,9 @@ app.get('/openapi.json', (req, res) => {
   const openApiSpec = {
     "openapi": "3.0.0",
     "info": {
-      "title": "Eligibility Rule Management API",
+      "title": "POC API",
       "version": "1.0.0",
-      "description": "Complete API for managing eligibility rules and benefit plans",
+      "description": "Complete API for managing benefit plans",
       "contact": {
         "name": "API Support",
         "email": "support@example.com"

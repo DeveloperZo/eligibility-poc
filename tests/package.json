@@ -1,7 +1,7 @@
 {
   "name": "eligibility-rule-tests",
   "version": "1.0.0",
-  "description": "Comprehensive test suite for the eligibility rule management system",
+  "description": "Comprehensive test suite for the benefit plan management system",
   "main": "run-tests.js",
   "scripts": {
     "test": "node run-tests.js",

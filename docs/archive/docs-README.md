@@ -1,6 +1,6 @@
 # Documentation Index
 
-Welcome to the Eligibility Rule Management System documentation. This index provides an overview of all available documentation and guides you to the right information for your needs.
+Welcome to the benefit plan Management System documentation. This index provides an overview of all available documentation and guides you to the right information for your needs.
 
 ## 📚 Documentation Structure
 
@@ -30,7 +30,7 @@ Strategic documents define the overall approach, standards, and architectural pr
 Tactical documents provide specific implementation guidance for the current problem domain.
 
 #### [IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)
-**Purpose**: Technical implementation details for the eligibility rule system  
+**Purpose**: Technical implementation details for the benefit plan system  
 **Audience**: Developers, engineers working on the system  
 **Key Topics**:
 - Problem domain analysis
