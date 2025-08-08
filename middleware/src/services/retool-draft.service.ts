@@ -25,6 +25,8 @@ export interface IBenefitPlanDraft {
   updated_at?: Date;
   status: 'draft' | 'submitted' | 'approved' | 'rejected';
   submission_id?: string;          // Link to orchestration if submitted
+  camunda_process_id?: string;    // Camunda process instance ID
+  submission_metadata?: any;       // Additional workflow metadata
   ui_state?: any;                  // Optional UI form state
 }
 
@@ -51,8 +53,8 @@ export class RetoolDraftService {
     try {
       const result = await client.query(
         `INSERT INTO benefit_plan_drafts 
-         (aidbox_plan_id, plan_data, created_by, updated_by, status, ui_state)
-         VALUES ($1, $2, $3, $4, $5, $6)
+         (aidbox_plan_id, plan_data, created_by, updated_by, status, camunda_process_id, submission_metadata, ui_state)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id`,
         [
           draft.aidbox_plan_id || null,
@@ -60,6 +62,8 @@ export class RetoolDraftService {
           draft.created_by,
           draft.updated_by,
           draft.status || 'draft',
+          draft.camunda_process_id || null,
+          draft.submission_metadata ? JSON.stringify(draft.submission_metadata) : null,
           draft.ui_state ? JSON.stringify(draft.ui_state) : null
         ]
       );
@@ -100,6 +104,8 @@ export class RetoolDraftService {
         updated_at: row.updated_at,
         status: row.status,
         submission_id: row.submission_id,
+        camunda_process_id: row.camunda_process_id,
+        submission_metadata: row.submission_metadata,
         ui_state: row.ui_state
       };
       
@@ -131,12 +137,22 @@ export class RetoolDraftService {
       }
       
       if (updates.submission_id !== undefined) {
-        setClauses.push(`submission_id = $${paramIndex++}`);
+        setClauses.push(`submission_id = ${paramIndex++}`);
         values.push(updates.submission_id);
       }
       
+      if (updates.camunda_process_id !== undefined) {
+        setClauses.push(`camunda_process_id = ${paramIndex++}`);
+        values.push(updates.camunda_process_id);
+      }
+      
+      if (updates.submission_metadata !== undefined) {
+        setClauses.push(`submission_metadata = ${paramIndex++}`);
+        values.push(JSON.stringify(updates.submission_metadata));
+      }
+      
       if (updates.ui_state !== undefined) {
-        setClauses.push(`ui_state = $${paramIndex++}`);
+        setClauses.push(`ui_state = ${paramIndex++}`);
         values.push(JSON.stringify(updates.ui_state));
       }
       
@@ -191,11 +207,22 @@ export class RetoolDraftService {
    */
   async listDrafts(userId: string, status?: string): Promise<IBenefitPlanDraft[]> {
     try {
-      let query = `SELECT * FROM benefit_plan_drafts WHERE created_by = $1`;
-      const params: any[] = [userId];
+      let query = `SELECT * FROM benefit_plan_drafts`;
+      const params: any[] = [];
+      let paramIndex = 1;
       
-      if (status) {
-        query += ` AND status = $2`;
+      // Only filter by userId if provided
+      if (userId && userId.trim() !== '') {
+        query += ` WHERE created_by = ${paramIndex++}`;
+        params.push(userId);
+        
+        if (status) {
+          query += ` AND status = ${paramIndex++}`;
+          params.push(status);
+        }
+      } else if (status) {
+        // No userId but status provided
+        query += ` WHERE status = ${paramIndex++}`;
         params.push(status);
       }
       
@@ -213,6 +240,8 @@ export class RetoolDraftService {
         updated_at: row.updated_at,
         status: row.status,
         submission_id: row.submission_id,
+        camunda_process_id: row.camunda_process_id,
+        submission_metadata: row.submission_metadata,
         ui_state: row.ui_state
       }));
       
@@ -224,17 +253,29 @@ export class RetoolDraftService {
 
   /**
    * Submit a draft for approval
-   * Links the draft to orchestration
+   * Links the draft to orchestration and Camunda process
    */
-  async markDraftAsSubmitted(draftId: string, submissionId: string): Promise<void> {
+  async markDraftAsSubmitted(
+    draftId: string, 
+    submissionId: string, 
+    camundaProcessId?: string,
+    metadata?: any
+  ): Promise<void> {
     try {
       await this.db.query(
         `UPDATE benefit_plan_drafts 
          SET status = 'submitted', 
              submission_id = $2,
+             camunda_process_id = $3,
+             submission_metadata = $4,
              updated_at = NOW()
          WHERE id = $1`,
-        [draftId, submissionId]
+        [
+          draftId, 
+          submissionId, 
+          camundaProcessId || null,
+          metadata ? JSON.stringify(metadata) : null
+        ]
       );
       
       logger.info(`Draft marked as submitted: ${draftId}`);
@@ -315,11 +356,84 @@ export class RetoolDraftService {
         updated_at: row.updated_at,
         status: row.status,
         submission_id: row.submission_id,
+        camunda_process_id: row.camunda_process_id,
+        submission_metadata: row.submission_metadata,
         ui_state: row.ui_state
       };
       
     } catch (error) {
       logger.error('Failed to get draft by submission ID', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get draft by Camunda process ID
+   * Used to find drafts associated with a specific workflow instance
+   */
+  async getDraftByCamundaProcessId(camundaProcessId: string): Promise<IBenefitPlanDraft | null> {
+    try {
+      const result = await this.db.query(
+        `SELECT * FROM benefit_plan_drafts WHERE camunda_process_id = $1`,
+        [camundaProcessId]
+      );
+      
+      if (result.rows.length === 0) {
+        return null;
+      }
+      
+      const row = result.rows[0];
+      return {
+        id: row.id,
+        aidbox_plan_id: row.aidbox_plan_id,
+        plan_data: row.plan_data,
+        created_by: row.created_by,
+        updated_by: row.updated_by,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        status: row.status,
+        submission_id: row.submission_id,
+        camunda_process_id: row.camunda_process_id,
+        submission_metadata: row.submission_metadata,
+        ui_state: row.ui_state
+      };
+      
+    } catch (error) {
+      logger.error('Failed to get draft by Camunda process ID', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update Camunda process information for a draft
+   */
+  async updateCamundaProcessInfo(
+    draftId: string, 
+    camundaProcessId: string, 
+    metadata?: any
+  ): Promise<void> {
+    try {
+      const metadataUpdate = metadata 
+        ? `submission_metadata = COALESCE(submission_metadata, '{}'::jsonb) || $3::jsonb,`
+        : '';
+      
+      const query = `
+        UPDATE benefit_plan_drafts 
+        SET camunda_process_id = $2,
+            ${metadataUpdate}
+            updated_at = NOW()
+        WHERE id = $1`;
+      
+      const params = metadata 
+        ? [draftId, camundaProcessId, JSON.stringify(metadata)]
+        : [draftId, camundaProcessId];
+      
+      await this.db.query(query, params);
+      
+      logger.info(`Updated Camunda process info for draft: ${draftId}`);
+      
+    } catch (error) {
+      logger.error('Failed to update Camunda process info', error);
       throw error;
     }
   }

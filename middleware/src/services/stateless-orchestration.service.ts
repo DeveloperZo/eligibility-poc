@@ -161,7 +161,14 @@ export class StatelessOrchestrationService {
     userId: string
   ): Promise<any> {
     try {
-      // 1. Get task variables from Camunda
+      // 1. Get task details from Camunda
+      const taskResponse = await axios.get(
+        `${this.camundaBaseUrl}/task/${taskId}`
+      );
+      const task = taskResponse.data;
+      const processInstanceId = task.processInstanceId;
+      
+      // 2. Get task variables from Camunda
       const varsResponse = await axios.get(
         `${this.camundaBaseUrl}/task/${taskId}/variables`
       );
@@ -170,20 +177,19 @@ export class StatelessOrchestrationService {
       const draftId = variables.draftId?.value;
       const baseVersion = variables.baseVersion?.value;
       const aidboxPlanId = variables.aidboxPlanId?.value;
-      const processInstanceId = variables.processInstanceId?.value;
 
       if (!draftId) {
         return { success: false, error: 'No draft ID in task' };
       }
 
-      // 2. Get draft from Retool
+      // 3. Get draft from Retool
       const draft = await retoolDraftService.getDraft(draftId);
       if (!draft) {
         return { success: false, error: 'Draft not found' };
       }
 
       if (approved) {
-        // 3. Check for version conflict
+        // 4. Check for version conflict
         if (aidboxPlanId && aidboxPlanId !== 'new') {
           try {
             const currentPlan = await aidboxService.getResource('InsurancePlan', aidboxPlanId);
@@ -220,7 +226,7 @@ export class StatelessOrchestrationService {
           }
         }
 
-        // 4. Complete task with approval
+        // 5. Complete task with approval
         await axios.post(
           `${this.camundaBaseUrl}/task/${taskId}/complete`,
           {
@@ -233,28 +239,23 @@ export class StatelessOrchestrationService {
           }
         );
 
-        // 5. Check if process is complete
+        // 6. Check if process is complete
+        // Wait a moment for Camunda to process the task completion
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         try {
           const processResponse = await axios.get(
             `${this.camundaBaseUrl}/process-instance/${processInstanceId}`
           );
           
-          // If we get 404, process is complete
-          if (processResponse.status === 404) {
-            // Process ended - push to Aidbox
-            const result = await this.pushToAidbox(draft);
-            
-            // Update draft status
-            await retoolDraftService.markDraftAsApproved(draftId, result.id);
-            
-            return {
-              success: true,
-              data: {
-                status: 'approved_and_published',
-                aidboxId: result.id
-              }
-            };
-          }
+          // Process is still running
+          return {
+            success: true,
+            data: {
+              status: 'task_completed',
+              message: 'Approval recorded, waiting for other approvers'
+            }
+          };
         } catch (error) {
           // 404 means process ended (which is what we want)
           if (error.response?.status === 404) {
@@ -272,16 +273,11 @@ export class StatelessOrchestrationService {
               }
             };
           }
+          // Re-throw other errors
+          throw error;
         }
 
-        // Process still running
-        return {
-          success: true,
-          data: {
-            status: 'task_completed',
-            message: 'Approval recorded, waiting for other approvers'
-          }
-        };
+
 
       } else {
         // Rejection
