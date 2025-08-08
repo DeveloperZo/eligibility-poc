@@ -306,6 +306,101 @@ export class CamundaService {
       throw error;
     }
   }
+
+  /**
+   * Start a process instance
+   */
+  async startProcess(processKey: string, variables: any): Promise<any> {
+    try {
+      const response = await this.client.post(
+        `/process-definition/key/${processKey}/start`,
+        { variables }
+      );
+      return response.data;
+    } catch (error) {
+      logger.error('Failed to start process:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get tasks (optionally filtered)
+   */
+  async getTasks(filter?: any): Promise<any[]> {
+    try {
+      const response = await this.client.get('/task', { params: filter });
+      return response.data;
+    } catch (error) {
+      logger.error('Failed to get tasks:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get a specific task
+   */
+  async getTask(taskId: string): Promise<any> {
+    try {
+      const response = await this.client.get(`/task/${taskId}`);
+      return response.data;
+    } catch (error) {
+      logger.error('Failed to get task:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Complete a task
+   */
+  async completeTask(taskId: string, variables: any): Promise<void> {
+    try {
+      await this.client.post(`/task/${taskId}/complete`, { variables });
+    } catch (error) {
+      logger.error('Failed to complete task:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get process instance
+   */
+  async getProcessInstance(processId: string): Promise<any> {
+    try {
+      const response = await this.client.get(`/process-instance/${processId}`);
+      return response.data;
+    } catch (error) {
+      logger.error('Failed to get process instance:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get process variables
+   */
+  async getProcessVariables(processId: string): Promise<any> {
+    try {
+      const response = await this.client.get(`/process-instance/${processId}/variables`);
+      return response.data;
+    } catch (error) {
+      logger.error('Failed to get process variables:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get process history
+   */
+  async getProcessHistory(processId: string): Promise<any[]> {
+    try {
+      const response = await this.client.get('/history/activity-instance', {
+        params: { processInstanceId: processId }
+      });
+      return response.data;
+    } catch (error) {
+      logger.error('Failed to get process history:', error);
+      throw error;
+    }
+  }
 }
 
 export const camundaService = new CamundaService();

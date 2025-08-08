@@ -23,7 +23,11 @@
     "logs:middleware": "docker-compose logs -f middleware",
     "logs:data": "docker-compose logs -f data-api",
     "logs:camunda": "docker-compose logs -f camunda",
-    "logs:postgres": "docker-compose logs -f postgres"
+    "logs:postgres": "docker-compose logs -f postgres",
+    "retool:up": "docker-compose -f docker-compose.self-hosted.yml up -d",
+    "retool:down": "docker-compose -f docker-compose.self-hosted.yml down",
+    "retool:logs": "docker-compose -f docker-compose.self-hosted.yml logs -f",
+    "retool:clean": "docker-compose -f docker-compose.self-hosted.yml down -v"
   },
   "keywords": [
     "eligibility",

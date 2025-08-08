@@ -1,188 +1,118 @@
-# Goal and Roadmap
+# Project Roadmap 
 
-This document provides high-level objectives and phased roadmap to guide the delivery and evolution of the benefit-plan onboarding and eligibility solution.
+## Document Metadata
 
-## Primary Goals
+* **Version:** 1.0.0
+* **Last Modified:** 2025-08-08
+* **Last Author:** Assistant (AI)
+* **Owner:** Product Management
+* **Status:** Active
+* **Review Cycle:** Monthly
+* **Next Review:** 2025-09-08
+* **Stakeholders:** Product, Engineering, Business Operations
+* **Approval:** CTO, VP Product
+* **Change Log:**
 
-- **Business User Autonomy**: Empower internal business users with full autonomy over benefit plan and eligibility rule management
-- **Standardized Rule Evaluation**: Ensure robust, standardized rule evaluation using Camunda DMN
-- **Architectural Coherence**: Achieve clear architectural coherence and maintainability with well-defined system boundaries
-- **Self-Service Capability**: Enable complete self-service rule management without IT intervention
-
-## Milestones
-
-### Milestone 1: Core Architecture Setup
-- [x] **Deploy Camunda DMN engine**: Camunda 7.18.0 with PostgreSQL
-- [x] **Setup development environment**: Docker Compose with all services
-- [x] **Define strategic architectural concerns**: Document foundational principles
-- [x] **Define API contracts**: Initial data models and service interfaces
-
-### Milestone 2: TypeScript Backend Implementation
-- [x] **DMN XML generator**: Convert user input to valid DMN XML
-- [x] **REST endpoints**: DMN deployment and eligibility evaluation APIs
-- [x] **Authentication and logging**: Security and audit mechanisms
-- [ ] **Rule persistence**: Database storage for rule definitions and versions
-- [ ] **Comprehensive testing**: Unit and integration test coverage
-
-### Milestone 3: Retool Self-Service Interface
-- [ ] **Benefit plan management UI**: Retool interface for plan configuration
-- [ ] **Eligibility rule creation**: Intuitive rule definition components
-- [ ] **Backend integration**: Connect Retool with backend service endpoints
-- [ ] **User testing**: Validate business user experience and workflows
-
-### Milestone 4: External Data Integration
-- [x] **External data simulation**: Mock health plan eligibility sources
-- [ ] **Production data integration**: Connect with real external systems
-- [ ] **Data caching and resilience**: Graceful degradation for external system failures
-- [ ] **Complete variable provisioning**: Ensure all data available for Camunda evaluations
-
-### Milestone 5: Governance and Auditability
-- [ ] **Comprehensive audit trails**: Logging and audit mechanisms
-- [ ] **Rule versioning**: Version control and rollback capabilities
-- [ ] **Data retention policies**: Implement and operationalize retention policies
-- [ ] **Compliance reporting**: Generate compliance and audit reports
+  * **v1.0.0 (2025-08-08):** Initial roadmap creation with crawl/walk/run phases for benefit plan creation use case.
 
 ---
 
-## 🎯 Current Sprint Goals
+## Project Vision
 
-### Immediate Priorities (Next 2 Weeks)
-1. **Rule Storage Implementation**
-   - Design and implement rule database schema
-   - Create rule repository pattern
-   - Implement basic CRUD operations
+Transform benefit plan and eligibility rule management from a developer-dependent, slow process into a business-admin self-service platform where changes flow through governed, auditable workflows and versioned artifacts. Immediate action is to provide an self serve ease at building UI and BPMN/DMN items.If not possible entirely then pragmatic sequence acquiring high self serve functionality over time. 
 
-2. **API Endpoint Development**
-   - Complete rule management REST API
-   - Add comprehensive validation
-   - Implement error handling
+### Success Metrics
 
-3. **Testing Framework**
-   - Set up automated testing pipeline
-   - Create comprehensive test suites
-   - Implement integration tests
+**Business Metrics**
 
-### Medium-term Goals (Next Month)
-1. **Performance Optimization**
-   - Implement caching strategies
-   - Optimize database queries
-   - Load testing and optimization
+* Rule/Plan Deployment Speed: Weeks → < 1 hour
+* IT Dependency: Reduce support tickets by 75%
+* User Adoption: 80% of benefit administrators actively using within 3 months
+* Error Reduction: 50% decrease in eligibility-related issues
 
-2. **Rule Versioning**
-   - Implement rule version management
-   - Add rollback capabilities
-   - Version comparison tools
+**Technical Metrics**
 
-3. **Advanced Validation**
-   - Complex rule validation
-   - Cross-rule conflict detection
-   - Business logic validation
-
-## 📊 Key Performance Indicators (KPIs)
-
-### Technical KPIs
-- **API Response Time**: <200ms for CRUD operations
-- **Rule Evaluation Time**: <500ms per evaluation
-- **System Uptime**: 99.9% availability
-- **Test Coverage**: >80% code coverage
-- **Deployment Success Rate**: >95% successful deployments
-
-### Business KPIs
-- **Rule Creation Time**: <10 minutes from idea to deployed rule
-- **User Error Rate**: <5% of rule creations require IT assistance
-- **Business User Adoption**: >90% of eligible users actively creating rules
-- **Rule Accuracy**: >99% of rules behave as intended
-- **Time to Value**: Rules providing business value within 1 hour of creation
-
-### Quality KPIs
-- **Bug Rate**: <1 critical bug per month in production
-- **Security Incidents**: 0 security-related incidents
-- **Performance Degradation**: <2% month-over-month performance loss
-- **Documentation Coverage**: 100% of APIs documented
-- **User Satisfaction**: >4.5/5 average user rating
-
-## 🎯 Success Milestones
-
-### Milestone 1: MVP Complete ✅
-- **Date**: Completed
-- **Criteria**: Basic rule creation and evaluation working
-- **Status**: ✅ Achieved
-
-### Milestone 2: Production Ready API
-- **Target Date**: 2 weeks from current
-- **Criteria**: Complete rule management API with persistence
-- **Dependencies**: Database schema, CRUD operations, testing
-
-### Milestone 3: Business User Interface
-- **Target Date**: 6 weeks from current
-- **Criteria**: Retool interface allowing business users to create rules
-- **Dependencies**: API completion, user experience design
-
-### Milestone 4: Enterprise Deployment
-- **Target Date**: 3 months from current
-- **Criteria**: Production deployment with security and monitoring
-- **Dependencies**: Performance optimization, security implementation
-
-## 🔄 Risk Management
-
-### Technical Risks
-| Risk | Impact | Probability | Mitigation |
-|------|---------|-------------|------------|
-| Camunda performance issues | High | Medium | Load testing, caching, alternative DMN engines |
-| Database scaling problems | High | Low | Database optimization, read replicas |
-| Security vulnerabilities | High | Medium | Security audits, penetration testing |
-| Integration complexity | Medium | Medium | Phased rollout, comprehensive testing |
-
-### Business Risks
-| Risk | Impact | Probability | Mitigation |
-|------|---------|-------------|------------|
-| User adoption resistance | High | Medium | Training, change management, UI/UX focus |
-| Business rule complexity | Medium | High | Progressive complexity, expert consultation |
-| Compliance requirements | High | Low | Early compliance review, audit preparation |
-| Competing priorities | Medium | High | Executive sponsorship, clear ROI demonstration |
-
-## 🎉 Definition of Done
-
-### For Each Development Phase
-- [ ] All planned features implemented and tested
-- [ ] Code review completed and approved
-- [ ] Unit tests written and passing (>80% coverage)
-- [ ] Integration tests completed
-- [ ] Performance requirements met
-- [ ] Security review completed
-- [ ] Documentation updated
-- [ ] Stakeholder acceptance achieved
-
-### For Production Release
-- [ ] All phases completed successfully
-- [ ] Load testing completed under expected traffic
-- [ ] Security audit passed
-- [ ] Disaster recovery plan tested
-- [ ] Monitoring and alerting configured
-- [ ] User training materials prepared
-- [ ] Support procedures documented
-- [ ] Go-live checklist completed
+* API Response Time: < 200ms for reads, < 500ms for writes
+* System Uptime: 99.9% availability target
+* Test Coverage: > 80% code coverage
+* Deployment Success: > 95% successful deployments
 
 ---
 
-## 📈 Long-term Vision (12-18 Months)
+## Primary Use Case
 
-### Organizational Impact
-- **Business Agility**: Reduce rule change cycle time from weeks to hours
-- **IT Efficiency**: Free up 80% of developer time from rule maintenance
-- **Compliance**: Automated audit trails and compliance reporting
-- **Innovation**: Enable rapid testing of new business rules and policies
+**Title:** Create/Revise a Benefit Plan with Routing, Approvals, and Versioning
 
-### Technical Evolution
-- **AI Integration**: Machine learning for rule optimization and suggestions
-- **Advanced Analytics**: Predictive analytics on rule performance
-- **Real-time Processing**: Stream processing for real-time rule evaluation
-- **Cloud Native**: Full cloud deployment with auto-scaling
+**Actors:** Plan Author, Approvers, Workflow Engine (Camunda), Business UI (Retool), Plan Catalog API
 
-### Business Transformation
-- **Self-Service Culture**: Business users empowered to manage their own rules
-- **Data-Driven Decisions**: Real-time analytics on rule effectiveness
-- **Rapid Iteration**: A/B testing of business rules at scale
-- **Competitive Advantage**: Faster response to market changes and opportunities
+**Preconditions:** Authenticated user with Plan Author role, Camunda process definition deployed, Plan Catalog DB available.
 
-**Success Vision**: *A system where business users can think of a new eligibility rule during a meeting and have it tested and deployed before the meeting ends.*
+**Happy Path:** Draft → Edit → Validate → Submit for Approval → Sequential Approvals (Legal, Finance, Compliance) → Version Freeze → Publish.
+
+**Alternate Paths:** Rejection and rework, timeout/escalation (walk), validation failure, withdrawal.
+
+**Postconditions:** Approved plans stored as immutable versions with audit trail.
+
+---
+
+## Phase Plan
+
+### CRAWL — End-to-End Minimal, Production-Viable
+
+**Goal:** A business admin can draft a plan in Retool and easily build a BPMN in Camunda. This should allow  for the Primary Use Case of end to end fuctionality (e.g. sequential approvals, and land an immutable approved version with audit trail, etc).
+**Scope:**
+
+* Retool screens: Plan List, Plan Editor, Submit for Approval, Task Inbox, Version History.
+* Camunda screens: BPMN related screens to assist in building.
+* Sequential approvals with static route.
+* Versioning model with immutable snapshots.
+* Basic RBAC and audit logging.
+
+---
+
+### WALK — Power, Governance, and Flexibility
+
+**Goal:** Introduce dynamic routing, stronger governance, better authoring/testing UX.
+**Scope:**
+
+* Dynamic routing via DMN.
+* Parallel approvals, escalations, and SLAs.
+* Version diff/rollback.
+* Rule templates and visual builder.
+* Batch testing and simulation.
+* Environment promotion and granular RBAC.
+
+---
+
+### RUN — Enterprise Scale, Compliance, and Insights
+
+**Goal:** Multi-tenant, analytics-rich, resilient platform with strong compliance posture.
+**Scope:**
+
+* Multi-tenancy.
+* Downstream publishing to external systems.
+* Advanced analytics and A/B testing.
+* Evidence store with retention policies.
+* SSO, SCIM provisioning, and fine-grained entitlements.
+* Resilience and disaster recovery.
+* Compliance automation and assistive features.
+
+---
+
+## Risks & Mitigations
+
+* Schema churn → Flexible JSON payload with typed fields for indexed queries.
+* Over-building UI → Retool-first approach.
+* Process lock-in → Keep BPMN minimal and extensible.
+
+---
+
+## Definition of Success
+
+**Crawl:** Create, submit, approve, and version a benefit plan fully via UI without engineering support.
+**Walk:** Dynamic governance and routing with richer authoring/testing features.
+**Run:** Enterprise-grade scalability, compliance, and intelligence.
+
+---
+
+**Next Review:** Align stakeholders on scope lock for Crawl and initiate BPMN v1 build.

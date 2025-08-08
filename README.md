@@ -1,278 +1,85 @@
 # Eligibility Rule Management System
 
-A complete prototype demonstrating eligibility rule management using Retool frontend, Camunda DMN engine, and TypeScript middleware. This system enables business users to create simple eligibility rules through an intuitive interface, automatically converts these to DMN XML format, deploys to Camunda, and provides end-to-end evaluation workflow.
+A modern, self-service platform for managing employee benefit eligibility rules using Retool, Camunda DMN, and TypeScript microservices.
 
-## 🚨 IMPORTANT: Local Testing Required Before Deployment
+## 📚 Documentation
 
-**NO DEPLOYMENT should occur before running the complete local testing suite successfully!**
+| Document | Purpose | Target Audience | When to Read |
+|----------|---------|-----------------|--------------|
+| [Executive Summary](docs/EXECUTIVE_SUMMARY.md) | Business overview, ROI, and strategic value | Executives, Stakeholders, Decision Makers | First overview of the system |
+| [QuickStart Guide](docs/QUICKSTART.md) | Complete setup and installation instructions | Developers, System Administrators | Setting up the system |
+| [RoadMap](docs/ROADMAP.md) | Project timeline, milestones, and future vision | Product Managers, Team Leads | Planning and tracking progress |
+| [Architecture Guide](docs/ARCHITECTURE.md) | Technical design, principles, and decisions | Architects, Senior Developers | Understanding system design |
+| [Implementation Guide](docs/IMPLEMENTATION_GUIDE.md) | Development patterns, APIs, and examples | Developers, Engineers | Building and extending features |
 
-Run this command first to validate the entire system:
-```bash
-npm run test-local
-```
+## 🎯 What is This?
 
-This script will:
-- ✅ Validate environment and dependencies
-- ✅ Start all Docker services
-- ✅ Run comprehensive integration tests
-- ✅ Confirm system readiness
-- ✅ Generate test reports
+The Eligibility Rule Management System empowers business users to manage benefit eligibility rules without IT intervention. It provides a visual interface for creating, testing, and deploying complex eligibility criteria using industry-standard decision management technology.
 
-**Only proceed with deployment after seeing: "🚀 System Status: READY FOR DEVELOPMENT"**
+**Key Benefits:**
+- 🚀 **Self-Service**: Business users manage rules independently
+- ⚡ **Real-Time**: Instant eligibility evaluation
+- 🔒 **Compliant**: Full audit trail and version control
+- 📊 **Scalable**: Microservices architecture for enterprise needs
 
-## 🌐 Live System URLs (After Setup)
-
-Once the local testing completes successfully, these are your live, working endpoints:
-
-### 🔗 Core Services
-- **Middleware API**: http://localhost:3000
-- **Data API**: http://localhost:3001
-- **Camunda Engine**: http://localhost:8080
-- **Camunda Admin**: http://localhost:8080/camunda (demo/demo)
-
-### 📎 Key Endpoints
-```bash
-# Health checks
-GET http://localhost:3000/health
-GET http://localhost:3001/health
-
-# Rule management
-POST http://localhost:3000/api/rules/create
-GET  http://localhost:3000/api/rules
-
-# Eligibility evaluation
-POST http://localhost:3000/api/evaluate
-
-# Employee data
-GET  http://localhost:3001/employees
-```
-
-📄 **Complete endpoint documentation**: [LIVE_SYSTEM_URLS.md](LIVE_SYSTEM_URLS.md)
-
-## System Architecture
+## 🏗️ Project Structure
 
 ```
-┌─────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Retool    │───▶│   Middleware     │───▶│    Camunda      │
-│  Frontend   │    │   (TypeScript)   │    │  DMN Engine     │
-└─────────────┘    └──────────────────┘    └─────────────────┘
-                            │                        │
-                            ▼                        ▼
-                   ┌─────────────────┐    ┌─────────────────┐
-                   │  External Data  │    │   PostgreSQL    │
-                   │   Sources       │    │   Database      │
-                   └─────────────────┘    └─────────────────┘
+eligibility-poc/
+├── docs/                           # Core documentation (6 documents)
+├── middleware/                     # TypeScript API service
+├── data/                          # Mock data API service
+├── retool/                        # Retool UI configurations
+├── scripts/                       # Automation and utilities
+├── tests/                         # Test suites
+├── docker-compose.yml             # Base services (no Retool)
+└── docker-compose.self-hosted.yml # Complete stack with Retool
 ```
 
-## Features
+## ⚡ Quick Links
 
-- **Business-Friendly Rule Creation**: Simple interface for creating eligibility rules
-- **Automated DMN Generation**: Convert business rules to standard DMN XML
-- **Real-time Deployment**: Deploy rules to Camunda engine instantly
-- **External Data Integration**: Connect with employee, health plan, and group data
-- **End-to-End Testing**: Complete workflow validation
+### For Developers
+- 🚀 [Get Started Now](docs/QUICKSTART.md) - Set up in under 30 minutes
+- 🔧 [API Documentation](docs/IMPLEMENTATION_GUIDE.md#api-documentation)
+- 🐛 [Troubleshooting](docs/QUICKSTART.md#troubleshooting)
 
-## Rule Types Supported
+### For Business Users
+- 📖 [User Guide](retool/USER_GUIDE.md) - How to use the system
+- 🎯 [Feature Overview](docs/EXECUTIVE_SUMMARY.md#key-features)
 
-1. **Age Validation**: `age > 18`, `age >= 21`, etc.
-2. **Health Plan Validation**: Valid health plan membership
-3. **Group Number Verification**: Employee group number validation
+### For Architects
+- 🏛️ [System Design](docs/ARCHITECTURE.md)
+- 🔄 [Integration Points](docs/IMPLEMENTATION_GUIDE.md#integration)
 
-## Quick Start
+## 🖥️ Service URLs
 
-### Prerequisites
+| Service | URL | Purpose |
+|---------|-----|---------|
+| Retool UI | http://localhost:3333 | User interface |
+| Camunda | http://localhost:8080/camunda | Decision engine |
+| Middleware API | http://localhost:3000 | Core API |
+| Data API | http://localhost:3001 | External data |
 
-- Docker and Docker Compose
-- Node.js 18+ (for local development)
-- Git
+## 📋 Prerequisites
 
-### 1. Clone and Setup
+- Docker Desktop 4.0+
+- Node.js 16+ and npm 7+
+- 8GB RAM minimum
+- 10GB free disk space
 
-```bash
-git clone <repository-url>
-cd CamundaRetool
-cp .env.example .env
-```
+For complete setup instructions, see the [QuickStart Guide](docs/QUICKSTART.md).
 
-### 2. Start the Environment
+## 🤝 Support & Contact
 
-```bash
-# Start all services
-docker-compose up -d
+- **Technical Issues**: Check [Implementation Guide](docs/IMPLEMENTATION_GUIDE.md)
+- **Business Questions**: See [Executive Summary](docs/EXECUTIVE_SUMMARY.md)
+- **Project Status**: Review [RoadMap](docs/ROADMAP.md)
+- **Bug Reports**: Create an issue in the repository
 
-# Check service status
-docker-compose ps
+## 📄 License
 
-# View logs
-docker-compose logs -f
-```
+MIT License - See LICENSE file for details
 
-### 3. Access Services
+---
 
-- **Camunda Cockpit**: http://localhost:8080/camunda/app/cockpit/default/#/login
-  - Username: `demo`
-  - Password: `demo`
-  
-- **Middleware API**: http://localhost:3000
-  - Health check: http://localhost:3000/health
-  
-- **PostgreSQL**: localhost:5432
-  - Database: `camunda`
-  - Username: `camunda`
-  - Password: `camunda`
-
-### 4. Verify Installation
-
-```bash
-# Test Camunda connectivity
-curl http://localhost:8080/engine-rest/engine
-
-# Test middleware health
-curl http://localhost:3000/health
-
-# Test database connection
-docker-compose exec postgres psql -U camunda -d camunda -c "SELECT version();"
-```
-
-## Development Workflow
-
-### Local Development
-
-```bash
-# Navigate to middleware
-cd middleware
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
-```
-
-### Project Structure
-
-```
-CamundaRetool/
-├── docker/                 # Docker configurations
-├── middleware/             # TypeScript service
-│   ├── src/               # Source code
-│   ├── dist/              # Compiled JavaScript
-│   ├── package.json       # Dependencies
-│   ├── tsconfig.json      # TypeScript config
-│   └── Dockerfile         # Container definition
-├── data/                  # External data simulation
-├── docs/                  # Documentation
-├── docker-compose.yml     # Multi-service configuration
-├── .env                   # Environment variables
-└── README.md             # This file
-```
-
-## Environment Configuration
-
-Key environment variables:
-
-```bash
-# Camunda
-CAMUNDA_BASE_URL=http://localhost:8080
-CAMUNDA_ADMIN_USER=demo
-CAMUNDA_ADMIN_PASSWORD=demo
-
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=camunda
-DB_USER=camunda
-DB_PASSWORD=camunda
-
-# Retool
-RETOOL_API_TOKEN=your_retool_token_here
-```
-
-## API Endpoints
-
-### Middleware Service
-
-- `GET /health` - Health check
-- `POST /api/rules` - Create new rule
-- `GET /api/rules` - List all rules
-- `PUT /api/rules/:id` - Update rule
-- `DELETE /api/rules/:id` - Delete rule
-- `POST /api/evaluate` - Evaluate eligibility
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Camunda won't start**
-   ```bash
-   # Check PostgreSQL is running
-   docker-compose logs postgres
-   
-   # Restart Camunda
-   docker-compose restart camunda
-   ```
-
-2. **Database connection issues**
-   ```bash
-   # Reset database
-   docker-compose down -v
-   docker-compose up -d postgres
-   ```
-
-3. **Port conflicts**
-   ```bash
-   # Check port usage
-   netstat -an | findstr :8080
-   netstat -an | findstr :5432
-   ```
-
-### Logs and Debugging
-
-```bash
-# View all logs
-docker-compose logs
-
-# View specific service logs
-docker-compose logs camunda
-docker-compose logs postgres
-docker-compose logs middleware
-
-# Follow logs in real-time
-docker-compose logs -f camunda
-```
-
-## Next Steps
-
-After successful setup:
-
-1. Configure Retool application
-2. Implement DMN XML generation
-3. Create external data simulation
-4. Build rule management API
-5. Develop end-to-end testing
-
-## Contributing
-
-1. Fork the repository
-2. Create feature branch
-3. Make changes
-4. Add tests
-5. Submit pull request
-
-## Support
-
-For questions and issues:
-- Check troubleshooting guide above
-- Review Docker logs
-- Verify environment configuration
-- Test individual components
-
-## License
-
-MIT License - see LICENSE file for details.
+**Ready to get started?** → [Follow the QuickStart Guide](docs/QUICKSTART.md)

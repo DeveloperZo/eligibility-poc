@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  retool-db:
+    image: postgres:13
+    container_name: retool-postgres
+    environment:
+      POSTGRES_DB: hammerhead_production
+      POSTGRES_USER: retool
+      POSTGRES_PASSWORD: retool123
+    volumes:
+      - retool-postgres-data:/var/lib/postgresql/data
+    networks:
+      - eligibility-network
+
+  retool:
+    image: tryretool/backend:2.119.3
+    container_name: retool-backend
+    ports:
+      - "3333:3000"
+    environment:
+      POSTGRES_DB: hammerhead_production
+      POSTGRES_HOST: retool-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: retool
+      POSTGRES_PASSWORD: retool123
+      NODE_ENV: production
+      JWT_SECRET: abcd1234abcd1234abcd1234abcd1234
+      ENCRYPTION_KEY: abcd1234abcd1234abcd1234abcd1234
+      LICENSE_KEY: SELF_HOSTED
+      BASE_DOMAIN: http://localhost:3333
+      DOMAINS: http://localhost:3333
+      CODE_EXECUTOR_INGRESS_DOMAIN: http://localhost:3333
+      WORKFLOW_BACKEND_HOST: http://localhost:3333
+      COOKIE_INSECURE: "true"
+      DISABLE_TELEMETRY: "true"
+    depends_on:
+      - retool-db
+    networks:
+      - eligibility-network
+
+  camunda-db:
+    image: postgres:13
+    container_name: camunda-postgres
+    environment:
+      POSTGRES_DB: camunda
+      POSTGRES_USER: camunda
+      POSTGRES_PASSWORD: camunda
+    ports:
+      - "5432:5432"
+    volumes:
+      - camunda-postgres-data:/var/lib/postgresql/data
+    networks:
+      - eligibility-network
+
+  camunda:
+    image: camunda/camunda-bpm-platform:7.18.0
+    container_name: camunda-engine
+    ports:
+      - "8080:8080"
+    environment:
+      DB_DRIVER: org.postgresql.Driver
+      DB_URL: jdbc:postgresql://camunda-db:5432/camunda
+      DB_USERNAME: camunda
+      DB_PASSWORD: camunda
+      WAIT_FOR: camunda-db:5432
+    depends_on:
+      - camunda-db
+    networks:
+      - eligibility-network
+
+  middleware:
+    build:
+      context: ./middleware
+      dockerfile: Dockerfile
+    container_name: eligibility-middleware
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      CAMUNDA_BASE_URL: http://camunda:8080
+      DB_HOST: camunda-db
+      DB_PORT: 5432
+      DB_NAME: camunda
+      DB_USER: camunda
+      DB_PASSWORD: camunda
+      DATA_API_URL: http://data-api:3001
+      CORS_ORIGIN: "http://localhost:3333"
+    depends_on:
+      - camunda
+      - data-api
+    networks:
+      - eligibility-network
+
+  data-api:
+    build:
+      context: ./data
+      dockerfile: Dockerfile
+    container_name: external-data-api
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      DATA_API_PORT: 3001
+    networks:
+      - eligibility-network
+
+volumes:
+  retool-postgres-data:
+  camunda-postgres-data:
+
+networks:
+  eligibility-network:
+    driver: bridge

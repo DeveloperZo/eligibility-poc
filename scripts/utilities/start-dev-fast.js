@@ -14,7 +14,7 @@ console.log('🚀 Starting Eligibility Rule Management - Development Environment
 console.log('');
 
 // Set working directory to project root
-process.chdir(path.join(__dirname, '..'));
+process.chdir(path.join(__dirname, '..', '..'));
 
 // Function to execute commands
 function runCommand(command, options = {}) {

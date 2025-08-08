@@ -27,19 +27,18 @@ export class App {
       contentSecurityPolicy: false, // Disabled for Retool integration
     }));
 
-    // CORS configuration for Retool integration and ngrok
+    // CORS configuration for self-hosted Retool
     this.app.use(cors({
       origin: [
-        process.env.RETOOL_BASE_URL || 'https://gatekeeperzo34.retool.com',
-        'https://20f445bf2d03.ngrok-free.app',
-        /\.ngrok-free\.app$/,  // Allow any ngrok-free.app subdomain
-        'http://localhost:3000',
-        'https://localhost:3000'
+        'http://localhost:3333',  // Self-hosted Retool
+        'http://localhost:3000',  // Middleware itself
+        'http://retool:3000',     // Docker internal
+        'http://host.docker.internal:3333' // Docker host
       ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'ngrok-skip-browser-warning'],
-      optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      optionsSuccessStatus: 200
     }));
 
     // Handle preflight requests
@@ -1348,6 +1347,43 @@ export class App {
       try {
         const { dmnController } = await import('./controllers/dmn.controller');
         return dmnController.generateSample(req, res, next);
+      } catch (error) {
+        next(error);
+      }
+    });
+
+    // Workflow endpoints
+    router.post('/workflow/start', async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { workflowController } = await import('./controllers/workflow.controller');
+        return workflowController.startBenefitPlanProcess(req, res, next);
+      } catch (error) {
+        next(error);
+      }
+    });
+
+    router.get('/workflow/tasks', async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { workflowController } = await import('./controllers/workflow.controller');
+        return workflowController.getPendingTasks(req, res, next);
+      } catch (error) {
+        next(error);
+      }
+    });
+
+    router.post('/workflow/tasks/:taskId/complete', async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { workflowController } = await import('./controllers/workflow.controller');
+        return workflowController.completeApprovalTask(req, res, next);
+      } catch (error) {
+        next(error);
+      }
+    });
+
+    router.get('/workflow/process/:processId/status', async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { workflowController } = await import('./controllers/workflow.controller');
+        return workflowController.getProcessStatus(req, res, next);
       } catch (error) {
         next(error);
       }
