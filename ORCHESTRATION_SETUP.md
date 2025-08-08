@@ -175,6 +175,85 @@ npm run build
 - [API Documentation](http://localhost:3000/api-docs)
 - [Testing Guide](docs/testing-guide.md)
 
+## 🔄 Camunda Process Variables Configuration
+
+### Overview
+The Benefit Plan Approval process stores all workflow state as Camunda process variables, eliminating the need for external database queries during workflow execution. This creates a truly stateless orchestration layer.
+
+### Core Process Variables
+
+#### Workflow Initialization Variables
+| Variable | Type | Description | Source |
+|----------|------|-------------|--------|
+| `draftId` | String | Unique identifier of the draft plan | Retool Database |
+| `draftSource` | String | Source system of the draft (default: "retool") | Orchestration Service |
+| `baseVersion` | String | Version ID of existing plan or "new" | Aidbox (if editing) |
+| `aidboxPlanId` | String | Aidbox Insurance Plan ID or "new" | Retool Draft |
+| `submittedBy` | String | User ID who submitted the plan | Orchestration Service |
+| `planName` | String | Human-readable plan name | Retool Draft |
+| `submittedAt` | String | ISO timestamp of submission | Orchestration Service |
+
+#### Approval Task Variables
+| Variable | Type | Description | Set By |
+|----------|------|-------------|--------|
+| `approved` | Boolean | Approval decision | Reviewer |
+| `approverComments` | String | Reviewer comments | Reviewer |
+| `approvedBy` | String | Approver user ID | Orchestration Service |
+| `approvedAt` | String | ISO timestamp of approval | Orchestration Service |
+
+### Deploying the BPMN Process
+
+```bash
+# Linux/Mac
+./deploy-workflow.sh
+
+# Windows
+deploy-workflow.bat
+
+# Or manually via REST API
+curl -X POST http://localhost:8080/engine-rest/deployment/create \
+  -H "Content-Type: multipart/form-data" \
+  -F "deployment-name=Benefit Plan Approval Process" \
+  -F "deployment-source=REST API" \
+  -F "data=@processes/benefit-plan-approval.bpmn"
+```
+
+### Testing Process Variables
+
+```bash
+# Start process with all variables
+curl -X POST http://localhost:8080/engine-rest/process-definition/key/benefit-plan-approval/start \
+  -H "Content-Type: application/json" \
+  -d '{
+    "variables": {
+      "draftId": {"value": "draft-123", "type": "String"},
+      "draftSource": {"value": "retool", "type": "String"},
+      "baseVersion": {"value": "new", "type": "String"},
+      "aidboxPlanId": {"value": "new", "type": "String"},
+      "submittedBy": {"value": "user@example.com", "type": "String"},
+      "planName": {"value": "Test Plan", "type": "String"},
+      "submittedAt": {"value": "2024-01-15T10:30:00Z", "type": "String"}
+    }
+  }'
+
+# View process variables
+curl -X GET http://localhost:8080/engine-rest/process-instance/{processInstanceId}/variables
+```
+
+### Monitoring Variables in Camunda Cockpit
+1. Open http://localhost:8080/camunda (admin/admin)
+2. Navigate to Processes > Benefit Plan Approval
+3. Select a process instance
+4. Click Variables tab to see all process variables
+
+### Process Variable Best Practices
+- **Type Safety**: Always specify variable types
+- **Naming**: Use camelCase consistently
+- **Validation**: Add constraints in BPMN form fields
+- **Versioning**: Track baseVersion to prevent conflicts
+- **Timestamps**: Use ISO 8601 format
+- **Performance**: Keep variable count <50 per instance
+
 ## 🎯 Next Steps
 
 1. **Start the middleware**: 
@@ -182,18 +261,23 @@ npm run build
    cd middleware && npm start
    ```
 
-2. **Test the approval workflow**:
+2. **Deploy the BPMN process**:
+   ```bash
+   ./deploy-workflow.sh  # or deploy-workflow.bat on Windows
+   ```
+
+3. **Test the approval workflow**:
    ```bash
    node scripts/testing/test-orchestration-api.js
    ```
 
-3. **Build Retool UI components**:
+4. **Build Retool UI components**:
    - Connect to http://localhost:3000/api
    - Use the orchestration endpoints
 
-4. **Deploy BPMN process** (if needed):
+5. **Monitor in Camunda**:
    - Access Camunda at http://localhost:8080
-   - Deploy benefit-plan-approval.bpmn
+   - View process variables in Cockpit
 
 ## 💡 Development Tips
 
