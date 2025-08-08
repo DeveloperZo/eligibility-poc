@@ -21,6 +21,13 @@ interface IConfig {
   dataApiUrl: string;
   retoolBaseUrl?: string;
   retoolApiToken?: string;
+
+  // Retool DB (self-hosted) - optional overrides
+  retoolDbHost?: string;
+  retoolDbPort?: number;
+  retoolDbName?: string;
+  retoolDbUser?: string;
+  retoolDbPassword?: string;
 }
 
 class Config implements IConfig {
@@ -42,6 +49,12 @@ class Config implements IConfig {
   public readonly dataApiUrl: string;
   public readonly retoolBaseUrl?: string;
   public readonly retoolApiToken?: string;
+
+  public readonly retoolDbHost?: string;
+  public readonly retoolDbPort?: number;
+  public readonly retoolDbName?: string;
+  public readonly retoolDbUser?: string;
+  public readonly retoolDbPassword?: string;
 
   constructor() {
     // Server configuration
@@ -67,6 +80,13 @@ class Config implements IConfig {
     this.retoolBaseUrl = process.env.RETOOL_BASE_URL;
     this.retoolApiToken = process.env.RETOOL_API_TOKEN;
 
+    // Retool DB overrides
+    this.retoolDbHost = process.env.RETOOL_DB_HOST;
+    this.retoolDbPort = process.env.RETOOL_DB_PORT ? parseInt(process.env.RETOOL_DB_PORT) : undefined;
+    this.retoolDbName = process.env.RETOOL_DB_NAME;
+    this.retoolDbUser = process.env.RETOOL_DB_USER;
+    this.retoolDbPassword = process.env.RETOOL_DB_PASSWORD;
+
     this.validate();
   }
 
@@ -81,7 +101,7 @@ class Config implements IConfig {
       'dbPassword'
     ];
 
-    const missing = requiredVars.filter(key => !this[key as keyof IConfig]);
+    const missing = requiredVars.filter(key => !(this as any)[key]);
 
     if (missing.length > 0) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);

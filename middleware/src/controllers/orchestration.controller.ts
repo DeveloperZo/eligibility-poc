@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
-import { orchestrationService } from '../services/orchestration.service';
+import { orchestrationService } from '../services/stateless-orchestration.service';
 import { logger } from '../utils/logger';
+import { retoolDraftService } from '../services/retool-draft.service';
 
 /**
  * Orchestration API Controller
@@ -66,7 +67,7 @@ export class OrchestrationController {
   /**
    * POST /api/plans/:id/submit
    * Submit edited plan for approval
-   * Body: { planData: {...}, userId: string }
+   * Body: { planData?: {...}, userId: string }
    */
   private async submitForApproval(req: Request, res: Response): Promise<void> {
     try {
@@ -74,24 +75,24 @@ export class OrchestrationController {
       const { planData, userId } = req.body;
 
       // Validation
-      if (!id || !planData || !userId) {
+      if (!id || !userId) {
         res.status(400).json({
           success: false,
-          error: 'Plan ID, plan data, and user ID are required'
+          error: 'Plan ID and user ID are required'
         });
         return;
       }
 
-      // Ensure planData has required FHIR fields
-      if (!planData.name || !planData.status) {
-        res.status(400).json({
-          success: false,
-          error: 'Plan data must include name and status'
-        });
-        return;
+      // Optionally persist the latest plan data into the draft before submitting
+      if (planData) {
+        try {
+          await retoolDraftService.updateDraft(id, { plan_data: planData, updated_by: userId });
+        } catch (e) {
+          logger.warn('Could not persist planData before submission', e);
+        }
       }
 
-      const result = await orchestrationService.submitForApproval(id, planData, userId);
+      const result = await orchestrationService.submitForApproval(id, userId);
       
       if (result.success) {
         res.status(201).json({

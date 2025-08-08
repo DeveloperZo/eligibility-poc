@@ -412,6 +412,121 @@ export class StatelessOrchestrationService {
   }
 
   /**
+   * Get a plan directly from Aidbox (no storage)
+   */
+  async getPlan(planId: string): Promise<any> {
+    try {
+      const plan = await aidboxService.getResource('InsurancePlan', planId);
+      return {
+        success: true,
+        data: plan
+      };
+    } catch (error) {
+      logger.error('Failed to get plan from Aidbox', error);
+      return {
+        success: false,
+        error: 'Failed to retrieve plan'
+      };
+    }
+  }
+
+  /**
+   * Get approval status for a plan (alias for getApprovalStatus)
+   */
+  async getPlanApprovalStatus(planId: string): Promise<any> {
+    // In stateless mode, we need the draft ID, not the plan ID
+    // Try to find a draft for this plan
+    try {
+      const drafts = await retoolDraftService.listDrafts('');
+      const draft = drafts.find((d: any) => d.aidbox_plan_id === planId);
+      
+      if (!draft) {
+        return {
+          success: true,
+          data: {
+            status: 'no_approval_process',
+            planId
+          }
+        };
+      }
+      
+      return this.getApprovalStatus(draft.id);
+    } catch (error) {
+      logger.error('Failed to get plan approval status', error);
+      return {
+        success: false,
+        error: 'Failed to retrieve approval status'
+      };
+    }
+  }
+
+  /**
+   * List all plans with their approval status
+   */
+  async listPlansWithStatus(): Promise<any> {
+    try {
+      // Get all plans from Aidbox
+      const plans = await aidboxService.searchResources('InsurancePlan', {});
+      
+      // Get all drafts
+      const drafts = await retoolDraftService.listDrafts('');
+      
+      // Create a map of plan ID to draft
+      const draftMap = new Map();
+      drafts.forEach((draft: any) => {
+        if (draft.aidbox_plan_id) {
+          draftMap.set(draft.aidbox_plan_id, draft);
+        }
+      });
+      
+      // Combine data
+      const plansWithStatus = await Promise.all(plans.map(async (plan: any) => {
+        const draft = draftMap.get(plan.id);
+        let approvalState = null;
+        
+        if (draft && draft.submission_id) {
+          try {
+            const processResponse = await axios.get(
+              `${this.camundaBaseUrl}/process-instance/${draft.submission_id}`
+            );
+            approvalState = {
+              workflowState: 'pending_approval',
+              submittedAt: draft.updated_at
+            };
+          } catch (error) {
+            if (error.response?.status === 404) {
+              approvalState = {
+                workflowState: draft.status === 'approved' ? 'approved' : 'rejected',
+                submittedAt: draft.updated_at
+              };
+            }
+          }
+        }
+        
+        return {
+          id: plan.id,
+          name: plan.name,
+          status: plan.status,
+          currentVersion: plan.meta?.versionId,
+          approvalState
+        };
+      }));
+      
+      return {
+        success: true,
+        data: plansWithStatus
+      };
+      
+    } catch (error) {
+      logger.error('Failed to list plans with status', error);
+      return {
+        success: false,
+        error: 'Failed to retrieve plans'
+      };
+    }
+  }
+
+  /**
    * List all drafts with their workflow status
    */
   async listDraftsWithStatus(userId?: string): Promise<any> {

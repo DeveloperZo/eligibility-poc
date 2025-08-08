@@ -34,11 +34,11 @@ export class RetoolDraftService {
   constructor() {
     // Connect to Retool's PostgreSQL (not orchestration DB)
     this.db = new Pool({
-      host: config.retoolDbHost || config.dbHost || 'localhost',
-      port: config.retoolDbPort || 5433,  // Different port for Retool DB
-      user: config.retoolDbUser || 'retool',
-      password: config.retoolDbPassword || 'retool',
-      database: config.retoolDbName || 'retool'
+      host: (config as any).retoolDbHost || config.dbHost || 'localhost',
+      port: (config as any).retoolDbPort || 5433,  // Different port for Retool DB
+      user: (config as any).retoolDbUser || 'retool',
+      password: (config as any).retoolDbPassword || 'retool',
+      database: (config as any).retoolDbName || 'retool'
     });
   }
 

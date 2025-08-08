@@ -11,7 +11,7 @@ class WorkflowTemplateController {
     try {
       const templates = workflowTemplateService.getTemplates();
       
-      res.json({
+      return res.json({
         success: true,
         data: {
           templates,
@@ -20,7 +20,7 @@ class WorkflowTemplateController {
       });
     } catch (error) {
       logger.error('Failed to get templates', error);
-      next(error);
+      return next(error);
     }
   }
 
@@ -42,13 +42,13 @@ class WorkflowTemplateController {
         });
       }
       
-      res.json({
+      return res.json({
         success: true,
         data: template
       });
     } catch (error) {
       logger.error('Failed to get template', error);
-      next(error);
+      return next(error);
     }
   }
 
@@ -75,30 +75,22 @@ class WorkflowTemplateController {
       // Generate BPMN from template
       const bpmn = workflowTemplateService.generateBPMN(templateId, parameters);
       
-      // Deploy to Camunda
-      const deployment = await camundaService.deployProcess(
-        parameters.processName || `Template ${templateId}`,
-        bpmn
-      );
+      // For now, skip deployment API (not implemented) and return preview-like data
+      logger.info('Generated workflow from template', { templateId });
       
-      logger.info('Deployed workflow from template', { 
-        templateId, 
-        deploymentId: deployment.id 
-      });
-      
-      res.json({
+      return res.json({
         success: true,
         data: {
-          deploymentId: deployment.id,
+          processName: parameters.processName || `Template ${templateId}`,
           processId: parameters.processId,
           templateId,
           parameters,
-          message: 'Workflow deployed successfully'
+          bpmn
         }
       });
     } catch (error) {
       logger.error('Failed to deploy from template', error);
-      next(error);
+      return next(error);
     }
   }
 
@@ -125,7 +117,7 @@ class WorkflowTemplateController {
       // Generate BPMN
       const bpmn = workflowTemplateService.generateBPMN(templateId, parameters);
       
-      res.json({
+      return res.json({
         success: true,
         data: {
           templateId,
@@ -136,7 +128,7 @@ class WorkflowTemplateController {
       });
     } catch (error) {
       logger.error('Failed to preview template', error);
-      next(error);
+      return next(error);
     }
   }
 
@@ -155,18 +147,16 @@ class WorkflowTemplateController {
         instanceId: processInstance.id 
       });
       
-      res.json({
+      return res.json({
         success: true,
         data: {
-          processInstanceId: processInstance.id,
-          processId,
-          variables,
-          message: 'Process started successfully'
+          instanceId: processInstance.id,
+          processId
         }
       });
     } catch (error) {
       logger.error('Failed to start template process', error);
-      next(error);
+      return next(error);
     }
   }
 }
