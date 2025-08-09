@@ -41,8 +41,10 @@ export class StatelessOrchestrationService {
       if (draft.aidbox_plan_id) {
         try {
           const existingPlan = await aidboxService.getResource('InsurancePlan', draft.aidbox_plan_id);
-          baseVersion = existingPlan.meta?.versionId;
-        } catch (error) {
+          if (existingPlan) {
+            baseVersion = existingPlan.meta?.versionId;
+          }
+        } catch (error: any) {
           logger.warn(`Could not get base version for plan ${draft.aidbox_plan_id}`);
         }
       }
@@ -131,7 +133,7 @@ export class StatelessOrchestrationService {
           }
           
           return task;
-        } catch (error) {
+        } catch (error: any) {
           logger.warn(`Could not enrich task ${task.id}`, error);
           return task;
         }
@@ -193,7 +195,7 @@ export class StatelessOrchestrationService {
         if (aidboxPlanId && aidboxPlanId !== 'new') {
           try {
             const currentPlan = await aidboxService.getResource('InsurancePlan', aidboxPlanId);
-            if (currentPlan.meta?.versionId !== baseVersion) {
+            if (currentPlan && currentPlan.meta?.versionId !== baseVersion) {
               // Version conflict - reject with reason
               await axios.post(
                 `${this.camundaBaseUrl}/task/${taskId}/complete`,
@@ -221,7 +223,7 @@ export class StatelessOrchestrationService {
                 }
               };
             }
-          } catch (error) {
+          } catch (error: any) {
             logger.warn('Could not check version', error);
           }
         }
@@ -256,7 +258,7 @@ export class StatelessOrchestrationService {
               message: 'Approval recorded, waiting for other approvers'
             }
           };
-        } catch (error) {
+        } catch (error: any) {
           // 404 means process ended (which is what we want)
           if (error.response?.status === 404) {
             // Process complete - push to Aidbox
@@ -347,7 +349,7 @@ export class StatelessOrchestrationService {
             }
           };
 
-        } catch (error) {
+        } catch (error: any) {
           if (error.response?.status === 404) {
             // Process ended
             return {
@@ -413,6 +415,12 @@ export class StatelessOrchestrationService {
   async getPlan(planId: string): Promise<any> {
     try {
       const plan = await aidboxService.getResource('InsurancePlan', planId);
+      if (!plan) {
+        return {
+          success: false,
+          error: 'Plan not found'
+        };
+      }
       return {
         success: true,
         data: plan
@@ -446,7 +454,7 @@ export class StatelessOrchestrationService {
         };
       }
       
-      return this.getApprovalStatus(draft.id);
+      return this.getApprovalStatus(draft.id!);
     } catch (error) {
       logger.error('Failed to get plan approval status', error);
       return {
@@ -489,7 +497,7 @@ export class StatelessOrchestrationService {
               workflowState: 'pending_approval',
               submittedAt: draft.updated_at
             };
-          } catch (error) {
+          } catch (error: any) {
             if (error.response?.status === 404) {
               approvalState = {
                 workflowState: draft.status === 'approved' ? 'approved' : 'rejected',
@@ -542,7 +550,7 @@ export class StatelessOrchestrationService {
               `${this.camundaBaseUrl}/process-instance/${draft.submission_id}`
             );
             workflowStatus = 'active';
-          } catch (error) {
+          } catch (error: any) {
             if (error.response?.status === 404) {
               workflowStatus = 'completed';
             }

@@ -145,7 +145,6 @@ export class App {
           version: '1.0.0',
           dependencies: {
             camunda: camundaHealth.status === 'fulfilled' ? camundaHealth.value.status : 'error',
-            database: 'connected', // Will be implemented later
             dataApi: dataApiHealth.status === 'fulfilled' ? dataApiHealth.value.status : 'error'
           }
         };

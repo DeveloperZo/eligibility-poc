@@ -129,7 +129,7 @@ export interface IHealthCheckResponse {
   version: string;
   dependencies: {
     camunda: 'connected' | 'disconnected' | 'error';
-    database: 'connected' | 'disconnected' | 'error';
+    database?: 'connected' | 'disconnected' | 'error';  // Optional for stateless operation
     dataApi: 'connected' | 'disconnected' | 'error';
   };
 }

@@ -343,6 +343,25 @@ export class MockAidboxService {
   }
 
   /**
+   * Alias methods for compatibility with stateless-orchestration.service
+   */
+  async getResource(resourceType: string, id: string): Promise<IFHIRResource | null> {
+    return this.get(resourceType, id);
+  }
+
+  async createResource(resourceType: string, data: any): Promise<IFHIRResource> {
+    return this.create(resourceType, data);
+  }
+
+  async updateResource(resourceType: string, id: string, data: any): Promise<IFHIRResource> {
+    return this.update(resourceType, id, data);
+  }
+
+  async searchResources(resourceType: string, params?: any): Promise<IFHIRResource[]> {
+    return this.search(resourceType, params);
+  }
+
+  /**
    * Create sample InsurancePlan for testing
    */
   async createSampleInsurancePlan(name: string, status: 'draft' | 'active' = 'draft'): Promise<IInsurancePlan> {

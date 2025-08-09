@@ -6,6 +6,7 @@ interface IConfig {
 
   // Camunda configuration
   camundaBaseUrl: string;
+  camundaUrl: string;  // Alias for camundaBaseUrl
   camundaEngineName: string;
   camundaAdminUser?: string;
   camundaAdminPassword?: string;
@@ -36,6 +37,7 @@ class Config implements IConfig {
   public readonly logLevel: string;
 
   public readonly camundaBaseUrl: string;
+  public readonly camundaUrl: string;  // Alias for camundaBaseUrl
   public readonly camundaEngineName: string;
   public readonly camundaAdminUser?: string;
   public readonly camundaAdminPassword?: string;
@@ -64,6 +66,7 @@ class Config implements IConfig {
 
     // Camunda configuration
     this.camundaBaseUrl = process.env.CAMUNDA_BASE_URL || 'http://localhost:8080';
+    this.camundaUrl = this.camundaBaseUrl + '/engine-rest';  // Add engine-rest path
     this.camundaEngineName = process.env.CAMUNDA_ENGINE_NAME || 'default';
     this.camundaAdminUser = process.env.CAMUNDA_ADMIN_USER;
     this.camundaAdminPassword = process.env.CAMUNDA_ADMIN_PASSWORD;
