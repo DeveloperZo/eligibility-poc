@@ -1,4 +1,10 @@
-# Orchestration Setup Guide
+# Stateless Orchestration Setup Guide
+
+> **Architecture Note**: This system uses a 3-database stateless orchestration pattern:
+> - **Retool Database**: Manages draft rules and UI state
+> - **Camunda Database**: Handles workflow orchestration and DMN rules
+> - **Aidbox Database**: Stores approved benefit plans in FHIR format
+> - **Middleware**: Operates as a pure stateless coordination layer (no database)
 
 ## 🚀 Quick Start (All Operating Systems)
 
@@ -27,12 +33,14 @@ This will:
 
 If you prefer to run steps individually:
 
-### 1. Apply Database Schema
+### 1. Verify Database Setup
 
 ```bash
 # OS-agnostic approach using Node.js
 node scripts/apply-schema.js
 ```
+
+This verifies that the Camunda database is properly configured. No orchestration database setup is needed as the middleware operates statelessly.
 
 ### 2. Start Docker Services
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * Complete setup script for the orchestration system
+ * Complete setup script for the stateless orchestration system
  * OS-agnostic - works on Windows, Mac, and Linux
+ * Uses 3-database architecture: Retool, Camunda, Aidbox
  * Run: node scripts/setup-orchestration.js
  */
 

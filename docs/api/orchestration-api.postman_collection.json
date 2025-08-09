@@ -1,0 +1,405 @@
+{
+  "info": {
+    "name": "Orchestration API - Stateless",
+    "description": "Postman collection for the stateless orchestration API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{api_key}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "your-api-key-here",
+      "type": "string"
+    },
+    {
+      "key": "plan_id",
+      "value": "plan-123",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "user-456",
+      "type": "string"
+    },
+    {
+      "key": "task_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "draft_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Plans",
+      "item": [
+        {
+          "name": "Get Plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plans/{{plan_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["plans", "{{plan_id}}"]
+            },
+            "description": "Get plan directly from Aidbox (source of truth)"
+          }
+        },
+        {
+          "name": "Submit Plan for Approval",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"planData\": {\n    \"name\": \"Updated Plan\",\n    \"coverage\": \"comprehensive\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/plans/{{plan_id}}/submit",
+              "host": ["{{base_url}}"],
+              "path": ["plans", "{{plan_id}}", "submit"]
+            },
+            "description": "Submit plan for approval workflow"
+          }
+        },
+        {
+          "name": "Get Plan Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plans/{{plan_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["plans", "{{plan_id}}", "status"]
+            },
+            "description": "Get approval status from Camunda workflow"
+          }
+        },
+        {
+          "name": "List Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plans?status=approved&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["plans"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "approved",
+                  "description": "Filter by status (draft, pending, approved, rejected)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page"
+                }
+              ]
+            },
+            "description": "List all plans with approval status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Drafts",
+      "item": [
+        {
+          "name": "Check Version Conflict",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/drafts/{{draft_id}}/check-conflict",
+              "host": ["{{base_url}}"],
+              "path": ["drafts", "{{draft_id}}", "check-conflict"]
+            },
+            "description": "Check for version conflicts before submission"
+          }
+        },
+        {
+          "name": "Resubmit Draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/drafts/{{draft_id}}/resubmit",
+              "host": ["{{base_url}}"],
+              "path": ["drafts", "{{draft_id}}", "resubmit"]
+            },
+            "description": "Resubmit draft after resolving conflicts"
+          }
+        },
+        {
+          "name": "List Drafts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/drafts?userId={{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["drafts"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{user_id}}",
+                  "description": "Filter by user ID (optional)"
+                }
+              ]
+            },
+            "description": "List all drafts with workflow status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Get Pending Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks?userId={{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tasks"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "{{user_id}}",
+                  "description": "User ID (required)"
+                }
+              ]
+            },
+            "description": "Get pending approval tasks for user"
+          }
+        },
+        {
+          "name": "Complete Task - Approve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approved\": true,\n  \"comments\": \"Looks good, approved for implementation\",\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}/complete",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}", "complete"]
+            },
+            "description": "Approve a task"
+          }
+        },
+        {
+          "name": "Complete Task - Reject",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approved\": false,\n  \"comments\": \"Needs revision - see comments\",\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/{{task_id}}/complete",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "{{task_id}}", "complete"]
+            },
+            "description": "Reject a task"
+          }
+        }
+      ]
+    },
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check service health (no auth required)",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workflow Examples",
+      "item": [
+        {
+          "name": "1. Check for Conflicts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/drafts/draft-example/check-conflict",
+              "host": ["{{base_url}}"],
+              "path": ["drafts", "draft-example", "check-conflict"]
+            },
+            "description": "Step 1: Check for version conflicts"
+          }
+        },
+        {
+          "name": "2a. Submit (No Conflict)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/plans/plan-example/submit",
+              "host": ["{{base_url}}"],
+              "path": ["plans", "plan-example", "submit"]
+            },
+            "description": "Step 2a: Submit if no conflict"
+          }
+        },
+        {
+          "name": "2b. Resubmit (After Conflict)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/drafts/draft-example/resubmit",
+              "host": ["{{base_url}}"],
+              "path": ["drafts", "draft-example", "resubmit"]
+            },
+            "description": "Step 2b: Resubmit after resolving conflict"
+          }
+        },
+        {
+          "name": "3. Check Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plans/plan-example/status",
+              "host": ["{{base_url}}"],
+              "path": ["plans", "plan-example", "status"]
+            },
+            "description": "Step 3: Monitor approval status"
+          }
+        },
+        {
+          "name": "4. Get Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tasks?userId=approver-123",
+              "host": ["{{base_url}}"],
+              "path": ["tasks"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "approver-123"
+                }
+              ]
+            },
+            "description": "Step 4: Get tasks for approver"
+          }
+        },
+        {
+          "name": "5. Complete Approval",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approved\": true,\n  \"comments\": \"Approved\",\n  \"userId\": \"approver-123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks/task-example/complete",
+              "host": ["{{base_url}}"],
+              "path": ["tasks", "task-example", "complete"]
+            },
+            "description": "Step 5: Complete the approval task"
+          }
+        }
+      ]
+    }
+  ]
+}

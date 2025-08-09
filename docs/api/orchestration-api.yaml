@@ -1,0 +1,639 @@
+openapi: 3.0.0
+info:
+  title: Orchestration API - Stateless Architecture
+  version: 2.0.0
+  description: |
+    Stateless orchestration service for benefit plan approval workflows.
+    The service coordinates between Retool (drafts), Camunda (workflow), and Aidbox (approved plans)
+    without maintaining its own database.
+  contact:
+    name: API Support
+    email: api-support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /plans/{id}:
+    get:
+      summary: Get plan from Aidbox
+      description: Retrieves a plan directly from Aidbox (source of truth)
+      operationId: getPlan
+      tags:
+        - Plans
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Plan ID
+      responses:
+        '200':
+          description: Plan retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanResponse'
+        '404':
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /plans/{id}/submit:
+    post:
+      summary: Submit plan for approval
+      description: Initiates the approval workflow for a plan
+      operationId: submitPlanForApproval
+      tags:
+        - Plans
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Plan ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                planData:
+                  type: object
+                  description: Optional latest plan data to persist before submission
+                userId:
+                  type: string
+                  description: ID of the user submitting the plan
+      responses:
+        '201':
+          description: Plan submitted for approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '409':
+          description: Conflict - Plan already in approval or version mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /plans/{id}/status:
+    get:
+      summary: Get plan approval status
+      description: Retrieves the current approval status from Camunda workflow
+      operationId: getPlanStatus
+      tags:
+        - Plans
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Plan ID
+      responses:
+        '200':
+          description: Status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /plans:
+    get:
+      summary: List all plans
+      description: Lists all plans with their current approval status
+      operationId: listPlans
+      tags:
+        - Plans
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, pending, approved, rejected]
+          description: Filter by status
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Items per page
+      responses:
+        '200':
+          description: Plans retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlansListResponse'
+
+  /drafts/{id}/check-conflict:
+    get:
+      summary: Check for version conflicts
+      description: Checks if there's a version conflict before submitting for approval
+      operationId: checkVersionConflict
+      tags:
+        - Drafts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Draft ID
+      responses:
+        '200':
+          description: Conflict check completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictCheckResponse'
+
+  /drafts/{id}/resubmit:
+    post:
+      summary: Resubmit draft after conflict resolution
+      description: Resubmits a draft with updated base version after resolving conflicts
+      operationId: resubmitDraft
+      tags:
+        - Drafts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Draft ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: string
+                  description: ID of the user resubmitting
+      responses:
+        '201':
+          description: Draft resubmitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResubmissionResponse'
+        '404':
+          description: Plan deleted or not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /drafts:
+    get:
+      summary: List all drafts
+      description: Lists all drafts with their workflow status
+      operationId: listDrafts
+      tags:
+        - Drafts
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+          description: Filter by user ID
+      responses:
+        '200':
+          description: Drafts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftsListResponse'
+
+  /tasks:
+    get:
+      summary: Get pending tasks
+      description: Retrieves pending approval tasks for a specific user
+      operationId: getPendingTasks
+      tags:
+        - Tasks
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: User ID
+      responses:
+        '200':
+          description: Tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TasksListResponse'
+        '400':
+          description: Missing or invalid user ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tasks/{id}/complete:
+    post:
+      summary: Complete approval task
+      description: Completes an approval task with approve or reject decision
+      operationId: completeTask
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - approved
+                - comments
+                - userId
+              properties:
+                approved:
+                  type: boolean
+                  description: Approval decision
+                comments:
+                  type: string
+                  description: Comments for the decision
+                userId:
+                  type: string
+                  description: ID of the user completing the task
+      responses:
+        '200':
+          description: Task completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskCompletionResponse'
+        '409':
+          description: Version conflict during approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionConflictResponse'
+
+  /health:
+    get:
+      summary: Health check
+      description: Checks the health status of the orchestration service
+      operationId: healthCheck
+      tags:
+        - System
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    PlanResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            status:
+              type: string
+              enum: [draft, pending_approval, approved, rejected]
+            version:
+              type: integer
+            lastModified:
+              type: string
+              format: date-time
+            details:
+              type: object
+              description: Plan configuration details
+
+    SubmissionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            processInstanceId:
+              type: string
+            planId:
+              type: string
+            status:
+              type: string
+
+    StatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            planId:
+              type: string
+            status:
+              type: string
+            currentStep:
+              type: string
+            assignee:
+              type: string
+            startedAt:
+              type: string
+              format: date-time
+
+    PlansListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            plans:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  status:
+                    type: string
+                  version:
+                    type: integer
+                  lastModified:
+                    type: string
+                    format: date-time
+            total:
+              type: integer
+            page:
+              type: integer
+            pageSize:
+              type: integer
+
+    ConflictCheckResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            hasConflict:
+              type: boolean
+            draftVersion:
+              type: integer
+            currentVersion:
+              type: integer
+            conflictType:
+              type: string
+              enum: [version_mismatch, plan_deleted]
+            resolution:
+              type: string
+
+    ConflictResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: version_conflict
+        message:
+          type: string
+
+    ResubmissionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            processInstanceId:
+              type: string
+            draftId:
+              type: string
+            newVersion:
+              type: integer
+
+    DraftsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            drafts:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  planId:
+                    type: string
+                  status:
+                    type: string
+                  createdBy:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  baseVersion:
+                    type: integer
+
+    TasksListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  planId:
+                    type: string
+                  planName:
+                    type: string
+                  type:
+                    type: string
+                  priority:
+                    type: string
+                  assignedTo:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  dueDate:
+                    type: string
+                    format: date-time
+            total:
+              type: integer
+
+    TaskCompletionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            taskId:
+              type: string
+            result:
+              type: string
+            nextStep:
+              type: string
+            processStatus:
+              type: string
+
+    VersionConflictResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: version_conflict
+        conflictType:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            currentVersion:
+              type: integer
+            approvedVersion:
+              type: integer
+            requiresReview:
+              type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    HealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        service:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        dependencies:
+          type: object
+          properties:
+            retool:
+              type: string
+              enum: [healthy, degraded, unhealthy]
+            camunda:
+              type: string
+              enum: [healthy, degraded, unhealthy]
+            aidbox:
+              type: string
+              enum: [healthy, degraded, unhealthy]

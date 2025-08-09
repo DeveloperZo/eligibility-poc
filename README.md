@@ -25,8 +25,12 @@ A modern, self-service platform for managing employee benefit plans with workflo
 
 ```
 eligibility-poc/
-├── docs/                           # Core documentation (6 documents)
-├── middleware/                     # TypeScript API service
+├── docs/                           # Core documentation
+│   ├── api/                       # API documentation
+│   │   ├── orchestration-api.md  # Human-readable API docs
+│   │   └── orchestration-api.yaml # OpenAPI specification
+│   └── ...                        # Architecture, guides, etc.
+├── middleware/                     # Stateless orchestration service
 ├── data/                          # Mock data API service
 ├── retool/                        # Retool UI configurations
 ├── scripts/                       # Automation and utilities
@@ -39,7 +43,8 @@ eligibility-poc/
 
 ### For Developers
 - 🚀 [Get Started Now](docs/QUICKSTART.md) - Set up in under 30 minutes
-- 🔧 [API Documentation](docs/IMPLEMENTATION_GUIDE.md#api-documentation)
+- 🔧 [API Documentation](docs/api/orchestration-api.md) - Stateless orchestration API
+- 📄 [OpenAPI Spec](docs/api/orchestration-api.yaml) - Machine-readable API specification
 - 🐛 [Troubleshooting](docs/QUICKSTART.md#troubleshooting)
 
 ### For Business Users
@@ -56,8 +61,9 @@ eligibility-poc/
 |---------|-----|---------|
 | Retool UI | http://localhost:3333 | User interface |
 | Camunda | http://localhost:8080/camunda | Decision engine |
-| Middleware API | http://localhost:3000 | Core API |
+| Orchestration API | http://localhost:3000 | Stateless coordination service |
 | Data API | http://localhost:3001 | External data |
+| API Documentation | http://localhost:3000/api/docs | Interactive API explorer |
 
 ## 📋 Prerequisites
 

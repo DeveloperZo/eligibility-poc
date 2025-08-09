@@ -28,26 +28,31 @@ This document defines the comprehensive technical architecture, design principle
 └───────────────────────────┬─────────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────────┐
-│                      API Gateway Layer                       │
-│                    (Middleware Service)                      │
+│                  Orchestration Service                       │
+│              (Stateless Coordination Layer)                  │
 └───────────┬───────────────┬────────────────┬────────────────┘
             │               │                │
 ┌───────────▼────┐ ┌────────▼──────┐ ┌──────▼──────┐
-│  Rule Engine   │ │  Data Service  │ │  Database   │
-│   (Camunda)    │ │   (Data API)   │ │ (PostgreSQL)│
+│    Retool DB   │ │    Camunda    │ │   Aidbox    │
+│    (Drafts)    │ │  (Workflow)   │ │  (Approved) │
 └────────────────┘ └────────────────┘ └─────────────┘
 ```
+
+**Stateless Architecture Pattern**: The orchestration service operates without its own database, delegating all state management to specialized services:
+- **Retool**: Manages draft plans and user edits
+- **Camunda**: Handles workflow state and approval processes
+- **Aidbox**: Stores approved plans as the source of truth
 
 ### Service Architecture
 
 #### Microservices Design
-The system follows a microservices architecture pattern with clear service boundaries:
+The system follows a **stateless microservices architecture** pattern with clear service boundaries:
 
-1. **Middleware Service** (Port 3000)
-   - Core API orchestration
-   - DMN XML generation
-   - Rule management logic
-   - External service integration
+1. **Orchestration Service** (Port 3000)
+   - Stateless API coordination
+   - No persistent data storage
+   - Pure workflow orchestration
+   - Service integration layer
 
 2. **Data API Service** (Port 3001)
    - Employee data management

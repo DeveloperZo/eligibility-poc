@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * OS-agnostic script to apply database schema
+ * OS-agnostic script to verify Camunda database
  * Works on Windows, Mac, and Linux
  * Run: node scripts/apply-schema.js
  */
@@ -40,8 +40,9 @@ function runCommand(command, options = {}) {
   }
 }
 
-async function applySchema() {
-  log('\n📦 Applying orchestration schema to PostgreSQL...', 'cyan');
+async function verifyCamundaDatabase() {
+  log('\n📦 Verifying Camunda database setup...', 'cyan');
+  log('   Note: Using 3-database stateless architecture (Retool, Camunda, Aidbox)', 'yellow');
 
   // Check if Docker is running
   try {
@@ -51,79 +52,48 @@ async function applySchema() {
     process.exit(1);
   }
 
-  // Check if container is running
-  const containerName = 'eligibility-poc-postgres-1';
+  // Check if Camunda PostgreSQL container is running
+  const containerName = 'camunda-postgres';
   const containers = runCommand('docker ps --format "{{.Names}}"', { silent: true });
   
   if (!containers || !containers.includes(containerName)) {
-    log(`❌ PostgreSQL container '${containerName}' is not running`, 'red');
+    log(`❌ Camunda PostgreSQL container '${containerName}' is not running`, 'red');
     log('   Start it with: docker-compose up -d postgres', 'yellow');
     process.exit(1);
   }
 
-  // Path to schema file
-  const schemaPath = path.join(__dirname, '..', 'data', 'orchestration-schema.sql');
-  
-  if (!fs.existsSync(schemaPath)) {
-    log(`❌ Schema file not found: ${schemaPath}`, 'red');
-    process.exit(1);
-  }
-
-  // Read schema file
-  const schemaContent = fs.readFileSync(schemaPath, 'utf8');
-
   try {
-    // Apply schema using docker exec with stdin
-    log('\nApplying schema...', 'cyan');
-    
-    // Create a temporary file with the schema content (works on all OS)
-    const tempFile = path.join(__dirname, '..', 'data', '.temp-schema.sql');
-    fs.writeFileSync(tempFile, schemaContent);
-    
-    // Copy file to container
-    runCommand(`docker cp "${tempFile}" ${containerName}:/tmp/schema.sql`, { silent: true });
-    
-    // Execute the schema
-    runCommand(`docker exec ${containerName} psql -U postgres -d postgres -f /tmp/schema.sql`);
-    
-    // Clean up temp file
-    fs.unlinkSync(tempFile);
-    runCommand(`docker exec ${containerName} rm /tmp/schema.sql`, { silent: true, ignoreError: true });
-    
-    log('\n✅ Schema applied successfully!', 'green');
-
-    // Verify tables were created
-    log('\n📋 Verifying tables...', 'cyan');
+    // Verify Camunda tables exist
+    log('\n📋 Verifying Camunda tables...', 'cyan');
     const tables = runCommand(
-      `docker exec ${containerName} psql -U postgres -d postgres -c "\\dt orchestration_*"`,
+      `docker exec ${containerName} psql -U camunda -d camunda -c "\\dt act_*" 2>/dev/null || echo "Camunda tables will be created on first startup"`,
       { silent: true }
     );
     console.log(tables);
 
-    // Check views
-    log('\n📊 Checking views...', 'cyan');
-    const views = runCommand(
-      `docker exec ${containerName} psql -U postgres -d postgres -c "SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname LIKE '%approval%' OR viewname LIKE '%metric%';"`,
-      { silent: true }
-    );
-    console.log(views);
-
-    // Test a simple query
+    // Test database connection
     log('\n🔍 Testing database connection...', 'cyan');
     const testQuery = runCommand(
-      `docker exec ${containerName} psql -U postgres -d postgres -c "SELECT COUNT(*) FROM orchestration_state;"`,
+      `docker exec ${containerName} psql -U camunda -d camunda -c "SELECT current_database(), current_user, version();"`,
       { silent: true }
     );
     console.log(testQuery);
 
-    log('\n🎉 Database setup complete!', 'green');
+    log('\n✅ Camunda database verified!', 'green');
+    log('\n📌 Architecture Overview:', 'cyan');
+    log('   • Retool Database: Stores draft rules and UI state', 'yellow');
+    log('   • Camunda Database: Manages workflows and DMN rules', 'yellow');
+    log('   • Aidbox Database: Stores approved benefit plans (FHIR)', 'yellow');
+    log('   • Middleware: Stateless orchestration layer (no database)', 'green');
+
+    log('\n🎉 Database verification complete!', 'green');
     log('\nYou can now:', 'cyan');
     log('  1. Start the middleware: cd middleware && npm start');
-    log('  2. Run API tests: node scripts/testing/test-orchestration-api.js');
-    log('  3. Access Camunda: http://localhost:8080 (admin/admin)');
+    log('  2. Access Camunda: http://localhost:8080 (admin/admin)');
+    log('  3. View API docs: http://localhost:3000/api-docs');
 
   } catch (error) {
-    log('\n❌ Failed to apply schema:', 'red');
+    log('\n❌ Failed to verify database:', 'red');
     console.error(error.message);
     
     // Try to show PostgreSQL logs for debugging
@@ -139,7 +109,7 @@ async function applySchema() {
 }
 
 // Run the script
-applySchema().catch(error => {
+verifyCamundaDatabase().catch(error => {
   log('❌ Unexpected error:', 'red');
   console.error(error);
   process.exit(1);

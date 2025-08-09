@@ -54,6 +54,15 @@ interface EligibilitySystem {
 
 ## 📡 API Documentation
 
+### Stateless Orchestration API
+
+The orchestration service has been refactored to follow a **stateless architecture pattern**. All API documentation has been updated to reflect this design:
+
+- **[API Documentation](api/orchestration-api.md)** - Comprehensive API reference
+- **[OpenAPI Specification](api/orchestration-api.yaml)** - Machine-readable specification
+- **[Implementation Examples](api/stateless-pattern-examples.md)** - Code samples and patterns
+- **[Postman Collection](api/orchestration-api.postman_collection.json)** - Ready-to-use API tests
+
 ### REST API Endpoints
 
 #### Rule Management
