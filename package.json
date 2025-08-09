@@ -4,7 +4,10 @@
   "description": "Complete prototype for benefit plan management using Retool, Camunda DMN, and TypeScript middleware",
   "main": "scripts/utilities/start-dev.js",
   "scripts": {
-    "start": "node scripts/utilities/start-dev.js",
+    "start": "node start-platform.js",
+    "restart": "node restart-platform.js",
+    "setup-license": "node setup-license.js",
+    "start:old": "node scripts/utilities/start-dev.js",
     "dev": "node scripts/utilities/start-dev.js",
     "dev-fast": "node scripts/utilities/start-dev-fast.js",
     "dev-fast:win": "powershell -ExecutionPolicy Bypass -File scripts/utilities/start-dev-fast.ps1",

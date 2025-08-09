@@ -6,7 +6,6 @@ interface IConfig {
 
   // Camunda configuration
   camundaBaseUrl: string;
-  camundaUrl: string;  // Alias for camundaBaseUrl
   camundaEngineName: string;
   camundaAdminUser?: string;
   camundaAdminPassword?: string;
@@ -19,7 +18,7 @@ interface IConfig {
   dbPassword: string;
 
   // External services
-  dataApiUrl: string;
+   dataApiUrl: string;
   retoolBaseUrl?: string;
   retoolApiToken?: string;
 
@@ -37,7 +36,6 @@ class Config implements IConfig {
   public readonly logLevel: string;
 
   public readonly camundaBaseUrl: string;
-  public readonly camundaUrl: string;  // Alias for camundaBaseUrl
   public readonly camundaEngineName: string;
   public readonly camundaAdminUser?: string;
   public readonly camundaAdminPassword?: string;
@@ -66,7 +64,6 @@ class Config implements IConfig {
 
     // Camunda configuration
     this.camundaBaseUrl = process.env.CAMUNDA_BASE_URL || 'http://localhost:8080';
-    this.camundaUrl = this.camundaBaseUrl + '/engine-rest';  // Add engine-rest path
     this.camundaEngineName = process.env.CAMUNDA_ENGINE_NAME || 'default';
     this.camundaAdminUser = process.env.CAMUNDA_ADMIN_USER;
     this.camundaAdminPassword = process.env.CAMUNDA_ADMIN_PASSWORD;
@@ -108,24 +105,7 @@ class Config implements IConfig {
 
     if (missing.length > 0) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-    }
-
-    // Validate numeric values
-    if (isNaN(this.port) || this.port <= 0 || this.port > 65535) {
-      throw new Error('MIDDLEWARE_PORT must be a valid port number');
-    }
-
-    if (isNaN(this.dbPort) || this.dbPort <= 0 || this.dbPort > 65535) {
-      throw new Error('DB_PORT must be a valid port number');
-    }
-
-    // Validate URLs
-    try {
-      new URL(this.camundaBaseUrl);
-      new URL(this.dataApiUrl);
-    } catch (error) {
-      throw new Error('Invalid URL format in configuration');
-    }
+   }
   }
 
   public isDevelopment(): boolean {

@@ -1,85 +1,158 @@
 version: '3.8'
 
 services:
+  # PostgreSQL for Camunda and workflow data
+  postgres:
+    image: postgres:13
+    container_name: workflow-postgres
+    environment:
+      POSTGRES_DB: camunda
+      POSTGRES_USER: camunda
+      POSTGRES_PASSWORD: camunda
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./workflow-extension.sql:/docker-entrypoint-initdb.d/workflow-extension.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U camunda"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL for Retool
+  retool-db:
+    image: postgres:13
+    container_name: retool-postgres
+    environment:
+      POSTGRES_DB: hammerhead_production
+      POSTGRES_USER: retool
+      POSTGRES_PASSWORD: retool123
+    ports:
+      - "5433:5432"  # Different external port to avoid conflict
+    volumes:
+      - retool-postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U retool"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Camunda BPM Platform
   camunda:
     image: camunda/camunda-bpm-platform:7.18.0
     container_name: camunda-engine
     ports:
       - "8080:8080"
     environment:
-      - DB_DRIVER=org.postgresql.Driver
-      - DB_URL=jdbc:postgresql://postgres:5432/camunda
-      - DB_USERNAME=camunda
-      - DB_PASSWORD=camunda
-      - WAIT_FOR=postgres:5432
+      DB_DRIVER: org.postgresql.Driver
+      DB_URL: jdbc:postgresql://postgres:5432/camunda
+      DB_USERNAME: camunda
+      DB_PASSWORD: camunda
+      WAIT_FOR: postgres:5432
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
-      - camunda-network
+      - app-network
     volumes:
       - camunda-data:/camunda/webapps
 
-  postgres:
-    image: postgres:13
-    container_name: camunda-postgres
-    environment:
-      - POSTGRES_DB=camunda
-      - POSTGRES_USER=camunda
-      - POSTGRES_PASSWORD=camunda
+  # Data API Service
+  data-api:
+    build:
+      context: ./data
+      dockerfile: Dockerfile
+    container_name: data-api
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      DATA_API_PORT: 3001
     networks:
-      - camunda-network
+      - app-network
+    volumes:
+      - ./data:/app
+      - /app/node_modules
 
+  # Middleware API Service
   middleware:
     build:
       context: ./middleware
       dockerfile: Dockerfile
-    container_name: eligibility-middleware
+    container_name: middleware-api
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=${NODE_ENV}
-      - API_BASE_URL=${API_BASE_URL}
-      - CAMUNDA_BASE_URL=http://camunda:8080
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=camunda
-      - DB_USER=camunda
-      - DB_PASSWORD=camunda
-      - DATA_API_URL=http://data-api:3001
+      NODE_ENV: development
+      CAMUNDA_BASE_URL: http://camunda:8080
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: camunda
+      DB_USER: camunda
+      DB_PASSWORD: camunda
+      DATA_API_URL: http://data-api:3001
+      CORS_ORIGIN: "*"
     depends_on:
       - camunda
       - postgres
       - data-api
     networks:
-      - camunda-network
+      - app-network
     volumes:
       - ./middleware:/app
       - /app/node_modules
 
-  data-api:
-    build:
-      context: ./data
-      dockerfile: Dockerfile
-    container_name: external-data-api
+  # Retool Self-Hosted
+  retool:
+    image: tryretool/backend:2.116.3
+    container_name: retool-app
     ports:
-      - "3001:3001"
+      - "3333:3000"
     environment:
-      - NODE_ENV=development
-      - DATA_API_PORT=3001
+      # Database
+      POSTGRES_DB: hammerhead_production
+      POSTGRES_HOST: retool-db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: retool
+      POSTGRES_PASSWORD: retool123
+      
+      # Security - CHANGE THESE IN PRODUCTION
+      JWT_SECRET: abcd1234abcd1234abcd1234abcd1234
+      ENCRYPTION_KEY: abcd1234abcd1234abcd1234abcd1234
+      
+      # Licensing Options:
+      # Option 1: Get a free key at https://retool.com/self-hosted/
+      # Option 2: Use test mode (uncomment line below)
+      LICENSE_KEY: EXPIRED-LICENSE-KEY-TRIAL
+      # Option 3: Replace with your actual key
+      # LICENSE_KEY: your-actual-license-key-here
+      
+      # Configuration
+      NODE_ENV: production
+      BASE_DOMAIN: http://localhost:3333
+      COOKIE_INSECURE: "true"
+      DISABLE_TELEMETRY: "true"
+      
+    depends_on:
+      retool-db:
+        condition: service_healthy
+      middleware:
+        condition: service_started
     networks:
-      - camunda-network
-    volumes:
-      - ./data:/app
-      - /app/node_modules
+      - app-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
-  camunda-data:
   postgres-data:
+  retool-postgres-data:
+  camunda-data:
 
 networks:
-  camunda-network:
+  app-network:
     driver: bridge

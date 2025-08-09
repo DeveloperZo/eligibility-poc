@@ -25,8 +25,7 @@ export interface IBenefitPlanDraft {
   updated_at?: Date;
   status: 'draft' | 'submitted' | 'approved' | 'rejected';
   submission_id?: string;          // Link to orchestration if submitted
-  camunda_process_id?: string;    // Camunda process instance ID
-  submission_metadata?: any;       // Additional workflow metadata
+  camunda_process_id?: string;     // Link to Camunda process if applicable
   ui_state?: any;                  // Optional UI form state
 }
 
@@ -53,8 +52,8 @@ export class RetoolDraftService {
     try {
       const result = await client.query(
         `INSERT INTO benefit_plan_drafts 
-         (aidbox_plan_id, plan_data, created_by, updated_by, status, camunda_process_id, submission_metadata, ui_state)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         (aidbox_plan_id, plan_data, created_by, updated_by, status, ui_state)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING id`,
         [
           draft.aidbox_plan_id || null,
@@ -62,8 +61,6 @@ export class RetoolDraftService {
           draft.created_by,
           draft.updated_by,
           draft.status || 'draft',
-          draft.camunda_process_id || null,
-          draft.submission_metadata ? JSON.stringify(draft.submission_metadata) : null,
           draft.ui_state ? JSON.stringify(draft.ui_state) : null
         ]
       );
@@ -104,8 +101,6 @@ export class RetoolDraftService {
         updated_at: row.updated_at,
         status: row.status,
         submission_id: row.submission_id,
-        camunda_process_id: row.camunda_process_id,
-        submission_metadata: row.submission_metadata,
         ui_state: row.ui_state
       };
       
@@ -137,22 +132,12 @@ export class RetoolDraftService {
       }
       
       if (updates.submission_id !== undefined) {
-        setClauses.push(`submission_id = ${paramIndex++}`);
+        setClauses.push(`submission_id = $${paramIndex++}`);
         values.push(updates.submission_id);
       }
       
-      if (updates.camunda_process_id !== undefined) {
-        setClauses.push(`camunda_process_id = ${paramIndex++}`);
-        values.push(updates.camunda_process_id);
-      }
-      
-      if (updates.submission_metadata !== undefined) {
-        setClauses.push(`submission_metadata = ${paramIndex++}`);
-        values.push(JSON.stringify(updates.submission_metadata));
-      }
-      
       if (updates.ui_state !== undefined) {
-        setClauses.push(`ui_state = ${paramIndex++}`);
+        setClauses.push(`ui_state = $${paramIndex++}`);
         values.push(JSON.stringify(updates.ui_state));
       }
       
@@ -240,8 +225,6 @@ export class RetoolDraftService {
         updated_at: row.updated_at,
         status: row.status,
         submission_id: row.submission_id,
-        camunda_process_id: row.camunda_process_id,
-        submission_metadata: row.submission_metadata,
         ui_state: row.ui_state
       }));
       
@@ -253,29 +236,17 @@ export class RetoolDraftService {
 
   /**
    * Submit a draft for approval
-   * Links the draft to orchestration and Camunda process
+   * Links the draft to orchestration
    */
-  async markDraftAsSubmitted(
-    draftId: string, 
-    submissionId: string, 
-    camundaProcessId?: string,
-    metadata?: any
-  ): Promise<void> {
+  async markDraftAsSubmitted(draftId: string, submissionId: string): Promise<void> {
     try {
       await this.db.query(
         `UPDATE benefit_plan_drafts 
          SET status = 'submitted', 
              submission_id = $2,
-             camunda_process_id = $3,
-             submission_metadata = $4,
              updated_at = NOW()
          WHERE id = $1`,
-        [
-          draftId, 
-          submissionId, 
-          camundaProcessId || null,
-          metadata ? JSON.stringify(metadata) : null
-        ]
+        [draftId, submissionId]
       );
       
       logger.info(`Draft marked as submitted: ${draftId}`);
@@ -356,8 +327,6 @@ export class RetoolDraftService {
         updated_at: row.updated_at,
         status: row.status,
         submission_id: row.submission_id,
-        camunda_process_id: row.camunda_process_id,
-        submission_metadata: row.submission_metadata,
         ui_state: row.ui_state
       };
       
@@ -394,7 +363,6 @@ export class RetoolDraftService {
         status: row.status,
         submission_id: row.submission_id,
         camunda_process_id: row.camunda_process_id,
-        submission_metadata: row.submission_metadata,
         ui_state: row.ui_state
       };
       
