@@ -24,6 +24,11 @@ export class OrchestrationController {
     this.router.get('/plans/:id/status', this.getPlanStatus.bind(this));
     this.router.get('/plans', this.listPlans.bind(this));
 
+    // Draft management routes
+    this.router.get('/drafts/:id/check-conflict', this.checkVersionConflict.bind(this));
+    this.router.post('/drafts/:id/resubmit', this.resubmitWithUpdatedVersion.bind(this));
+    this.router.get('/drafts', this.listDrafts.bind(this));
+
     // Task management routes
     this.router.get('/tasks', this.getPendingTasks.bind(this));
     this.router.post('/tasks/:id/complete', this.completeTask.bind(this));
@@ -245,11 +250,12 @@ export class OrchestrationController {
           data: result.data
         });
       } else {
-        // Check for version conflict (voided)
-        if (result.error === 'voided') {
+        // Check for version conflict
+        if (result.error === 'version_conflict') {
           res.status(409).json({
             success: false,
-            error: 'Version conflict',
+            error: 'version_conflict',
+            conflictType: result.conflictType,
             message: result.message,
             data: result.data
           });
@@ -259,6 +265,107 @@ export class OrchestrationController {
       }
     } catch (error) {
       logger.error('Error completing task', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+      });
+    }
+  }
+
+  /**
+   * GET /api/drafts/:id/check-conflict
+   * Check for version conflicts before submitting for approval
+   */
+  private async checkVersionConflict(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          error: 'Draft ID is required'
+        });
+        return;
+      }
+
+      const result = await orchestrationService.checkVersionConflict(id);
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(500).json(result);
+      }
+    } catch (error) {
+      logger.error('Error checking version conflict', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+      });
+    }
+  }
+
+  /**
+   * POST /api/drafts/:id/resubmit
+   * Resubmit a draft with updated base version after conflict resolution
+   * Body: { userId: string }
+   */
+  private async resubmitWithUpdatedVersion(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { userId } = req.body;
+
+      if (!id || !userId) {
+        res.status(400).json({
+          success: false,
+          error: 'Draft ID and user ID are required'
+        });
+        return;
+      }
+
+      const result = await orchestrationService.resubmitWithUpdatedVersion(id, userId);
+      
+      if (result.success) {
+        res.status(201).json({
+          success: true,
+          message: result.data.message || 'Draft resubmitted successfully',
+          data: result.data
+        });
+      } else {
+        if (result.error === 'plan_deleted') {
+          res.status(404).json(result);
+        } else {
+          res.status(400).json(result);
+        }
+      }
+    } catch (error) {
+      logger.error('Error resubmitting draft', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error'
+      });
+    }
+  }
+
+  /**
+   * GET /api/drafts
+   * List all drafts with their workflow status
+   * Query params: { userId?: string }
+   */
+  private async listDrafts(req: Request, res: Response): Promise<void> {
+    try {
+      const { userId } = req.query;
+      
+      const result = await orchestrationService.listDraftsWithStatus(
+        userId ? String(userId) : undefined
+      );
+      
+      if (result.success) {
+        res.json(result);
+      } else {
+        res.status(500).json(result);
+      }
+    } catch (error) {
+      logger.error('Error listing drafts', error);
       res.status(500).json({
         success: false,
         error: 'Internal server error'

@@ -6,15 +6,19 @@
   "scripts": {
     "test": "node run-tests.js",
     "test:integration": "npx tsx integration-tests.ts",
+    "test:stateless": "node run-stateless-tests.js",
+    "test:stateless:jest": "node run-stateless-tests.js --jest",
+    "test:stateless:direct": "npx tsx stateless-orchestration.test.ts",
     "test:postman": "newman run api-tests.postman_collection.json --reporters cli,json --reporter-json-export postman-results.json",
     "test:health": "node -e \"require('./run-tests.js').checkSystemHealth()\"",
     "test:performance": "node -e \"require('./run-tests.js').runPerformanceBenchmarks()\"",
     "test:verbose": "node run-tests.js --verbose",
     "test:ci": "node run-tests.js --skip-interactive",
+    "test:all": "npm run test:integration && npm run test:stateless",
     "report:html": "open test-report.html",
     "report:json": "cat test-report.json | jq .",
     "cleanup": "rm -f test-report.* postman-results.json",
-    "install-deps": "npm install axios tsx newman"
+    "install-deps": "npm install"
   },
   "keywords": [
     "testing",
@@ -33,7 +37,11 @@
   },
   "devDependencies": {
     "newman": "^6.0.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=16.0.0"

@@ -154,7 +154,13 @@ export class StatelessOrchestrationService {
   }
 
   /**
-   * Complete an approval task
+   * Complete an approval task with enhanced version conflict detection
+   * 
+   * @param taskId - The Camunda task ID
+   * @param approved - Whether to approve or reject
+   * @param comments - Comments from the approver
+   * @param userId - ID of the user completing the task
+   * @returns Result with approval status or conflict information
    */
   async completeApprovalTask(
     taskId: string,
@@ -191,40 +197,124 @@ export class StatelessOrchestrationService {
       }
 
       if (approved) {
-        // 4. Check for version conflict
+        // 4. Enhanced version conflict detection
         if (aidboxPlanId && aidboxPlanId !== 'new') {
           try {
+            // Fetch current version from Aidbox
             const currentPlan = await aidboxService.getResource('InsurancePlan', aidboxPlanId);
-            if (currentPlan && currentPlan.meta?.versionId !== baseVersion) {
-              // Version conflict - reject with reason
+            
+            if (!currentPlan) {
+              // Plan was deleted - this is also a conflict
+              logger.warn(`Plan ${aidboxPlanId} not found in Aidbox - may have been deleted`);
+              
+              // Complete task with conflict flag
               await axios.post(
                 `${this.camundaBaseUrl}/task/${taskId}/complete`,
                 {
                   variables: {
                     approved: { value: false, type: 'Boolean' },
-                    rejectionReason: { value: 'Version conflict detected', type: 'String' },
-                    conflictDetected: { value: true, type: 'Boolean' }
+                    rejectionReason: { value: 'Plan no longer exists in Aidbox', type: 'String' },
+                    conflictDetected: { value: true, type: 'Boolean' },
+                    conflictType: { value: 'DELETED', type: 'String' },
+                    voidedAt: { value: new Date().toISOString(), type: 'String' },
+                    voidedBy: { value: userId, type: 'String' }
                   }
                 }
               );
 
-              // Update draft status
+              // Update draft status to conflict
               await retoolDraftService.updateDraft(draftId, {
-                status: 'rejected'
+                status: 'rejected',
+                submission_metadata: {
+                  conflictType: 'DELETED',
+                  conflictDetectedAt: new Date().toISOString(),
+                  message: 'The plan was deleted from Aidbox during the approval process'
+                }
               });
+
+              // Log conflict for audit
+              logger.info(`Version conflict detected: Plan ${aidboxPlanId} deleted, approval voided for task ${taskId}`);
 
               return {
                 success: false,
                 error: 'version_conflict',
-                message: 'Plan was modified during approval process',
+                conflictType: 'DELETED',
+                message: 'The plan was deleted from Aidbox during the approval process. Please create a new draft.',
                 data: {
-                  baseVersion,
-                  currentVersion: currentPlan.meta?.versionId
+                  draftId,
+                  aidboxPlanId,
+                  taskId,
+                  voidedAt: new Date().toISOString()
                 }
               };
             }
+            
+            // Compare versions
+            const currentVersion = currentPlan.meta?.versionId;
+            
+            if (currentVersion !== baseVersion) {
+              // Version mismatch detected
+              logger.warn(`Version conflict: base=${baseVersion}, current=${currentVersion} for plan ${aidboxPlanId}`);
+              
+              // Complete task with conflict flag and void the approval
+              await axios.post(
+                `${this.camundaBaseUrl}/task/${taskId}/complete`,
+                {
+                  variables: {
+                    approved: { value: false, type: 'Boolean' },
+                    rejectionReason: { value: `Version conflict detected: Plan modified by another user`, type: 'String' },
+                    conflictDetected: { value: true, type: 'Boolean' },
+                    conflictType: { value: 'VERSION_MISMATCH', type: 'String' },
+                    baseVersion: { value: baseVersion, type: 'String' },
+                    currentVersion: { value: currentVersion, type: 'String' },
+                    voidedAt: { value: new Date().toISOString(), type: 'String' },
+                    voidedBy: { value: userId, type: 'String' }
+                  }
+                }
+              );
+
+              // Update draft status with conflict information
+              await retoolDraftService.updateDraft(draftId, {
+                status: 'rejected',
+                submission_metadata: {
+                  conflictType: 'VERSION_MISMATCH',
+                  baseVersion,
+                  currentVersion,
+                  conflictDetectedAt: new Date().toISOString(),
+                  message: 'The plan was modified by another user during the approval process'
+                }
+              });
+
+              // Log conflict for audit purposes
+              logger.info(`Version conflict detected: base=${baseVersion}, current=${currentVersion} for plan ${aidboxPlanId}, approval voided for task ${taskId}`);
+
+              return {
+                success: false,
+                error: 'version_conflict',
+                conflictType: 'VERSION_MISMATCH',
+                message: 'The plan was modified by another user during the approval process. Please resubmit with the updated version.',
+                data: {
+                  draftId,
+                  aidboxPlanId,
+                  baseVersion,
+                  currentVersion,
+                  taskId,
+                  voidedAt: new Date().toISOString(),
+                  actionRequired: 'Please refresh the draft from the latest version and resubmit for approval'
+                }
+              };
+            }
+            
+            // No conflict - versions match
+            logger.info(`Version check passed: version=${currentVersion} for plan ${aidboxPlanId}`);
+            
           } catch (error: any) {
-            logger.warn('Could not check version', error);
+            // Error checking version - log but allow approval to proceed with warning
+            logger.error(`Error checking version for plan ${aidboxPlanId}:`, error);
+            
+            // Optionally, we could reject here for safety
+            // For now, we'll log the issue but proceed
+            logger.warn('Proceeding with approval despite version check error - manual verification recommended');
           }
         }
 
@@ -526,6 +616,186 @@ export class StatelessOrchestrationService {
       return {
         success: false,
         error: 'Failed to retrieve plans'
+      };
+    }
+  }
+
+  /**
+   * Resubmit a draft with updated base version after conflict resolution
+   * 
+   * This method allows users to resubmit a draft that was rejected due to version conflict
+   * It fetches the latest version from Aidbox and updates the draft before resubmission
+   * 
+   * @param draftId - The draft ID to resubmit
+   * @param userId - The user performing the resubmission
+   * @returns Result with new process instance information
+   */
+  async resubmitWithUpdatedVersion(draftId: string, userId: string): Promise<any> {
+    try {
+      // 1. Get the draft
+      const draft = await retoolDraftService.getDraft(draftId);
+      if (!draft) {
+        return { success: false, error: 'Draft not found' };
+      }
+
+      // 2. Check if draft was rejected due to conflict
+      if (draft.status !== 'rejected' || 
+          !draft.submission_metadata?.conflictType) {
+        return { 
+          success: false, 
+          error: 'Draft was not rejected due to conflict',
+          message: 'This method is only for resubmitting drafts rejected due to version conflicts'
+        };
+      }
+
+      // 3. Get the latest version from Aidbox if editing existing plan
+      let newBaseVersion = null;
+      if (draft.aidbox_plan_id && draft.aidbox_plan_id !== 'new') {
+        try {
+          const currentPlan = await aidboxService.getResource('InsurancePlan', draft.aidbox_plan_id);
+          if (!currentPlan) {
+            return {
+              success: false,
+              error: 'plan_deleted',
+              message: 'The original plan no longer exists in Aidbox. Please create a new draft.'
+            };
+          }
+          newBaseVersion = currentPlan.meta?.versionId;
+          
+          // Optionally merge any changes from the current version
+          // This could be enhanced to handle merge conflicts
+          logger.info(`Resubmitting draft ${draftId} with updated base version: ${newBaseVersion}`);
+          
+        } catch (error: any) {
+          logger.error(`Failed to get current version for plan ${draft.aidbox_plan_id}`, error);
+          return {
+            success: false,
+            error: 'Failed to fetch current plan version'
+          };
+        }
+      }
+
+      // 4. Reset draft status to draft
+      await retoolDraftService.updateDraft(draftId, {
+        status: 'draft',
+        submission_metadata: {
+          ...draft.submission_metadata,
+          previousConflict: draft.submission_metadata,
+          conflictResolvedAt: new Date().toISOString(),
+          resolvedBy: userId
+        }
+      });
+
+      // 5. Resubmit with new base version
+      const submissionResult = await this.submitForApproval(draftId, userId);
+      
+      if (submissionResult.success) {
+        logger.info(`Draft ${draftId} successfully resubmitted with base version ${newBaseVersion}`);
+        
+        return {
+          success: true,
+          data: {
+            ...submissionResult.data,
+            baseVersion: newBaseVersion,
+            message: 'Draft resubmitted successfully with updated base version'
+          }
+        };
+      }
+
+      return submissionResult;
+
+    } catch (error) {
+      logger.error('Failed to resubmit draft with updated version', error);
+      return {
+        success: false,
+        error: 'Failed to resubmit draft'
+      };
+    }
+  }
+
+  /**
+   * Check for version conflicts before submitting for approval
+   * 
+   * This proactive check helps prevent conflicts by verifying the version
+   * before starting the approval workflow
+   * 
+   * @param draftId - The draft to check
+   * @returns Conflict status and current version information
+   */
+  async checkVersionConflict(draftId: string): Promise<any> {
+    try {
+      // Get the draft
+      const draft = await retoolDraftService.getDraft(draftId);
+      if (!draft) {
+        return { success: false, error: 'Draft not found' };
+      }
+
+      // Only check if editing existing plan
+      if (!draft.aidbox_plan_id || draft.aidbox_plan_id === 'new') {
+        return {
+          success: true,
+          data: {
+            hasConflict: false,
+            isNewPlan: true,
+            message: 'No conflict - this is a new plan'
+          }
+        };
+      }
+
+      try {
+        // Get current version from Aidbox
+        const currentPlan = await aidboxService.getResource('InsurancePlan', draft.aidbox_plan_id);
+        
+        if (!currentPlan) {
+          return {
+            success: true,
+            data: {
+              hasConflict: true,
+              conflictType: 'DELETED',
+              message: 'The plan has been deleted from Aidbox'
+            }
+          };
+        }
+
+        const currentVersion = currentPlan.meta?.versionId;
+        const draftBaseVersion = draft.submission_metadata?.baseVersion;
+
+        if (draftBaseVersion && currentVersion !== draftBaseVersion) {
+          return {
+            success: true,
+            data: {
+              hasConflict: true,
+              conflictType: 'VERSION_MISMATCH',
+              baseVersion: draftBaseVersion,
+              currentVersion,
+              message: 'The plan has been modified since this draft was created',
+              lastModified: currentPlan.meta?.lastUpdated
+            }
+          };
+        }
+
+        return {
+          success: true,
+          data: {
+            hasConflict: false,
+            currentVersion,
+            message: 'No version conflict detected'
+          }
+        };
+
+      } catch (error: any) {
+        logger.error(`Error checking version for plan ${draft.aidbox_plan_id}`, error);
+        return {
+          success: false,
+          error: 'Failed to check version conflict'
+        };
+      }
+
+    } catch (error) {
+      logger.error('Failed to check version conflict', error);
+      return {
+        success: false,
+        error: 'Failed to check version conflict'
       };
     }
   }
